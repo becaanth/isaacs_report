@@ -34,8 +34,31 @@
 
 \section{Introduction}
 % give a high level overview of your project - is it a technique, or the application of a specific algorithm, etc.? Who (worldwide) the major players in the area? Why is the topic interesting?
+Adversarial games in continuous spaces have long been studied under the field of differential game theory, developed by Rufus Isaac's in the 1950s~\cite{}.
+These games, contrary to their discrete classical game theoretical counterpoints, have the evolution of the game evolve according to differential equations.
+Differential games have been used in several application spaces, such as perimeter defense, risk-averse landing path plannign for airplanes, and ... \cite{}.
+In robotics, differential games find many applications in military ...
 
-test
+Recently, more interest has been taken in multi-agent differential games~\cite{}. 
+These, of course, model more realistic scenarios and engagements. 
+However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of somputing Hamilton-Jacobi-Isaacs solutions.~\cite{}
+
+One such multi-agent game is the multi-pursuer vision-based pursuit evasion game.
+ In this formulation, the evader, or evaders, are often treated as abstract entities that can move at arbitrary speeds. 
+ This forces the pursuing team to plan for the worst-case scenario.
+ As such, the problem devolves into a type of constrained frontier expansion problem on a known path.
+ This makes the formulation of interest to motion planning researchers.
+ 
+Many solutions have been proposed for this problem, from learning-based methods, sampling-based approaches, and graph-search algorithms~\cite{}.
+However, in the literature, practitioners tend to compare only against solutions they have readily available - ignoring suitable baselines from other problem formulations and only evaluating on limited subsets of the total problem space.
+As such, the state of the art is lacking in honest analysis and comparison of different approaches to multi-agent differential games.
+
+Following the growth of popularity of game theory, an effort to evaluate the performance of different strategies was undertaken on Axelrod's tournament - a contest in which different policies were pitted against each other in varying conditions to compare outcomes.
+Here, we pursue a simplified version of Axelrod's tournament on one differential game.
+We implement four approaches to the multi-pursuer observability-based pursuit evasion game, and compare them on numerous scenarios using common metrics.
+We identify and analyse the behaviours of each method under various conditions that challenge their formulations, and use the information to recommend steps for future works.
+
+The remainder of this work is organized as follows; in Section \ref{}
 
 \section{Background}
 % Describe the necessary background of your topic. How did researchers in the field derive the current approach(es)? Explain the relevance of the topic to motion planning
