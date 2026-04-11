@@ -77,16 +77,27 @@ Naturally, contaminated labels dominate cleared labels, as when a shadow we have
 
 Five main shadow events are introduced. These are
 \begin{itemize}
-	\item Appear
-	\item Disappear
-	\item Merge
-	\item Continue
-	\item Split
+	\item Appear - A shadow is instantiated when a prviously seen part of the environment becomes hidden.
+	\item Disappear - Existing shadows vanish when the come into the visibility cone of the pursuers.
+	\item Merge - Two or more existing shadows join together and adopt the same shadow label when a shadow appears linking them together.
+	\item Split - One shadow can be divided into multiple shadows when the pursuers visibility cones cause them to be non-path connected in 4-neighbour space.
 \end{itemize}
 In practice these events are calculated on a continuous space by discretizing into a grid, calculating shadows based on line of sight from agent positions in a joint configurations, and propagating dominant labels to the 4-neighbours of any unseen cell. 
 
+Before desribing the process of propogating labels, we begin with the following definition. 
+A shadow is clear at a time $t$ if it is not possible for an evader, as defined earlier, to inhabit the shadow. 
+Otherwise, a shadow is contaminated.
+
+We may now state the relationship between the shadow events and labels as
+\begin{itemize}
+	\item Appear - A shadow appearing from previously visible areas is marked clear.
+	\item Disappear - Labels are discarded
+	\item Merge - When shadows merge, the dominant label is assigned to all of the shadows. That is to say, if any of the merging shadows is contaminated,the resulting shadow is contaminated, and otherwise it is clear.
+	\item Split - All shadows resulting from a split inherit the label of the original shadow.
+\end{itemize}
+
 Of course, algorithms may use this information in their planning loop, and several considered implementations do so~\cite{bibid}.
-The primary drawback of this approach is the extreme cost of computing the shadow label propoagation. 
+The primary drawback of this approach is the extreme cost of computing the shadow label propagation. 
 in a 64mx64m environment at a resolution of 1m, discretization yields 4096 cells, each of which has to be check for line of sight from $N$ positions.
 Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
 This leads to significant slow-downs in sampling on more complex and larger maps.
@@ -135,10 +146,11 @@ As we are interested in comparing recent developments in the field, we sampled a
 These are then compared on common metrics using a series of different maps.
 Below, we detail every algorithm selected for comparison.
 
-\subsection{Samping-Based Pursuit-Evasion Graphs}
-Sampling-based pursuit-evasion graphs~(SB-PEG) utilize RRT-style sampling in a joint configuration space to find solutions to the VB-PE game.
-While based on RRT algorihtms, no proofs of probabilistic completeteness are provided for SB-PEG.
+\subsection{Sample-Generated Pursuit-Evasion Graphs}
+Sample-generated pursuit-evasion graphs~(SG-PEG) utilize RRT-style sampling in a joint configuration space to find solutions to the VB-PE game.
+While based on RRT algorihtms, no proofs of probabilistic completeness are provided for SG-PEG.
 
+We begin with a description of the graph data structure utilized in SG-PEG. The graph utilizes is a rooted di-graph with vertices representing joint robot configurations $r_{0:N}$.  
 
 
 \section{Comparison Methodology}
