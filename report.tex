@@ -209,7 +209,27 @@ Below, we detail every algorithm selected for comparison.
 Sample-generated pursuit-evasion graphs~(SG-PEG) utilize RRT-style sampling in a joint configuration space to find solutions to the VB-PE game.
 While based on RRT algorihtms, no proofs of probabilistic completeness are provided for SG-PEG.
 
-We begin with a description of the graph data structure utilized in SG-PEG. The graph utilizes is a rooted di-graph with vertices representing joint robot configurations $r_{0:N}$.  
+We begin with a description of the graph data structure utilized in SG-PEG.
+The graph utilizes is a rooted di-graph with vertices representing joint robot configurations $r_{0:N}$, as well as the set of non-dominated shadows reachable by traversing the graph to the vertex in question.
+For an edge to be considered valid in the context of the graph, a line in the joint configuration space $\mathcal{C}^N$ must exist that maps reachable configurations of shadow labels at the source vertex to the same at the target vertex.
+
+The core complexity in the graph arises from the operation necessary to add an edge. 
+When a new connection is established between two vertices, resulting shadow labels must be computed.
+To do so, interpolation between the two associated joint configurations is utilized to obtain a number of evenly spaced poses in $\mathcal{C}^N$. 
+Shadow events are then computed at these evenly spaced joint configurations, propagating the intermediate labels between the vertices.
+
+Upon adding a new edge, the algorithm recursively searches through the neighbours of the vertex, updating the dominated labels.
+This acts as bookkeeping for a solutions.
+If the reachable labels are all clear for a given vertex, the vertex must denote a full clearing of the environment.
+Upon this condition being met, we may then reconstruct a solution from the intermediate waypoints between the root and the cleared node, as in any tree-based motion planning method.
+
+The authors utilize three constraints to filter which edges should be added to the graph.
+The first is mutual visibility - a line of sight, or obstacle free straight line path, must exist between each pursuers configuration at vertex $i$ and its corresponding configuration at vertex $i+1$.
+The second is edge-length, with a maximum distance being set between two configurations.
+Finally, a minimum cycle length is set to ensure that computation is not wasted on low-information configuration changes.
+
+Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space.
+With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
 
 \section{Comparison Methodology}
