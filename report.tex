@@ -58,13 +58,67 @@ Here, we pursue a simplified version of Axelrod's tournament on one differential
 We implement four approaches to the multi-pursuer observability-based pursuit evasion game, and compare them on numerous scenarios using common metrics.
 We identify and analyse the behaviours of each method under various conditions that challenge their formulations, and use the information to recommend steps for future works.
 
-The remainder of this work is organized as follows; in Section \ref{}
+The remainder of this work is organized as follows; in Section \ref{}, we review the related works; in Section \ref{label}, we state the exact problem formulation; in Section \ref{provide the background knowledge necessary }, we detail the individual algorithms we implement and evaluate, in Section \ref{}, we detail our methodology for comparison; in Section \ref{label}, we discuss and analyse the methods comparisons and failure modes; and in Section \ref{}, we identify promising areas for further investigatin.
 
 \section{Background}
-% Describe the necessary background of your topic. How did researchers in the field derive the current approach(es)? Explain the relevance of the topic to motion planning
 
 \subsection{Pursuit-Evasion Games}
 
+\subsection{The N-Pursuer Visibility-Based Pursuit-Evasion Game}
+
+\subsection{Shadow Events}
+Central to some algorithms in the literature is the concept of shadow events~\cite{bibid}. 
+This framework provides a conceptual analog of pursuer movement that neatly fits into the N-Pursuer Visibility-Based Pursuit-Evasion game.
+Briefly, shadow events describe a framework for propagating labels assigned to particular unseen regions in a space based on a hierarchy of dominance under common interactons.
+
+Introduced in \cite{}, shadow events are primarily used to keep track of contaminated areas in the game's space of interest.
+As such, the labels of concern are whether an area is clear or contaminated.
+Naturally, contaminated labels dominate cleared labels, as when a shadow we have cleared intersects with an unchecked shadow, the evading agent may move into the previously check space.
+
+Five main shadow events are introduced. These are
+\begin{itemize}
+	\item Appear
+	\item Disappear
+	\item Merge
+	\item Continue
+	\item Split
+\end{itemize}
+In practice these events are calculated on a continuous space by discretizing into a grid, calculating shadows based on line of sight from agent positions in a joint configurations, and propagating dominant labels to the 4-neighbours of any unseen cell. 
+
+Of course, algorithms may use this information in their planning loop, and several considered implementations do so~\cite{bibid}.
+The primary drawback of this approach is the extreme cost of computing the shadow label propoagation. 
+in a 64mx64m environment at a resolution of 1m, discretization yields 4096 cells, each of which has to be check for line of sight from $N$ positions.
+Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
+This leads to significant slow-downs in sampling on more complex and larger maps.
+Speed-ups can be made by decreasing the resolution, but this comes at the cost of potentially missing contaminations.
+
+Nonetheless, this concept provides a simple way to monitor and evaluate approaches to this problem.
+As such we find it useful to utilize shadow labels as a metric in the evaluation of the various algorithms detailed below.
+
+
+\subsection{Sampling-Based Motion Planning}
+Two core algorithms are of interest in the context of this comparison: randomly exploring rapid trees~(RRT) and probabalistic road maps~(PRM).
+Both algorithms build upon the theoretical framework of the random geometric graph~(RGG), a structure ...
+This imbues them with the property of \textit{probabilistic completenes}. As the number of samples taken approaches infinity, the probability of finding an optimal solution tend to $1$.
+Of course, the algorithms vary in specifics, as detailed below.
+
+RRT algorithms build upon the random sampling of the configuration space around a robot to expand a tree. We begin by defining the ...
+
+PRM instead builds upon the idea of ...
+
+Most sampling-based motion planning algorithms struggle in higher-dimensional spaces, as a result of the search space growing exponentially in the number of dimensions~\cite{bibid}. 
+Of course, multi-robot planning exhibits such a property, with the number of dimensions increasing at a rate of $N|s_i|$.
+As a result, several extensions to RRT and PRM have been proposed to improve their performance in joint configuration spaces.
+
+Multi-robot RRT
+
+Multi-robot PRM
+
+
+
+\subsection{Graph-Based Motion Planning}
+
+\subsection{Multi-Agent Reinforcement Learning}
 
 
 \section{Literature Review}
@@ -75,8 +129,11 @@ The remainder of this work is organized as follows; in Section \ref{}
 
 \subsection{Learning-based Approaches}
 
-\section{Implementation}
+\section{Algorithm Implementation}
 % What did you implement, and what were the results you obtained? What information is presented in the tables, figures, and diagrams you have included? This is the 'meat' of the report - when writing this section, step back and consider how best to convey your results to someone who is new to the topic.
+\subsection{title}
+
+\section{Comparison Methodology}
 
 \section{Open Problems}
 % Based upon your work, what are some (specific) open problems in the topic area? Are there any major obstacles to progress (e.g. insufficient compute, unsolved theoretical issues)? Can you suggest possible ways to move forward?
