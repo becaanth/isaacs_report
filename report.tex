@@ -26,49 +26,47 @@
 
 \begin{abstract}
 	The study of planning under adversarial conditions has become of great interest as the adoption of robotics for security, defense, and surveillance increases. 
-	Further, adversarial planning can be used to account for worst-case scenarios in critical areas, such as risk-aware motion planning or search and rescue.
+	Further, adversarial planning can be used to account for worst-case scenarios in safety-critical areas, such as risk-aware motion planning or search and rescue.
 	Often, this study is conducted under the framework of differential game theory, a methodology that studies optimal outcomes of scenarios with multiple rational actors that evolve according to differential equations.
     One such scenario is the $N$-pursuer visibility-based pursuit evasion game, in which a team of pursuers attempts to examine an entire area in such a way that a moving evader would be unable to escape detection.
-	This game has been used to model environmental inspection, perimeter defense, and search and rescue problems, but most approaches tend to only evaluate on simple scenarios and against similar approaches.
-	In this report, we rectify this gap through the study and comparison the quantitative and qualitative results associated with several state of the art approaches.
+	This game has been used to model environmental inspection, perimeter defense, and search and rescue problems, but most approaches tend to only evaluate simple scenarios and compare against similar approaches.
+	In this report, we rectify this gap through the study and comparison of the quantitative and qualitative results associated with four state of the art approaches.
 \end{abstract}
 
-\begin{IEEEkeywords}
-\end{IEEEkeywords}
 
 \section{Introduction}
 % give a high level overview of your project - is it a technique, or the application of a specific algorithm, etc.? Who (worldwide) the major players in the area? Why is the topic interesting?
 Adversarial games in continuous spaces have long been studied under the field of differential game theory, developed by Rufus Isaac's in the 1960s~\cite{diff_games}.
-These games, contrary to their discrete classical game theoretical counterpoints, have the evolution of the game evolve according to differential equations.
+These games, contrary to their discrete classical game theoretical counterpoints, have the evolution of state evolve according to differential equations.
 Differential games have been used in several application spaces, such as perimeter defense, risk-averse landing path planning for airplanes, and search and rescue~\cite{pursuit}.
 
 Recently, more interest has been taken in multi-agent differential games. 
 These, of course, model more realistic scenarios and engagements. 
-However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of computing Hamilton-Jacobi-Isaacs solutions~\cite{multi_diff}.
+However, solution methods must often settle for sub-optimal solutions due to the curse of dimensionality and the computational difficulty of obtaining analytical solutions~\cite{multi_diff}.
 As a result, much work has been focussed on the development of heuristics, learning-based approaches, and approximate solutions.
 
 One such multi-agent game is the multi-pursuer vision-based pursuit evasion game.
-In this formulation, the evader, or evaders, are often treated as abstract entities that can move at arbitrary speeds. 
+In this formulation, the evaders are often treated as abstract entities that can move at arbitrary speeds. 
 This forces the pursuing team to plan for the worst-case scenario.
-As such, the problem devolves into a type of constrained frontier expansion problem on a known path.
+As such, the problem devolves into a type of constrained frontier expansion problem on a known environment.
 This makes the formulation of interest to motion planning researchers.
  
-Many solutions have been proposed for this problem, from learning-based methods~\cite{}, sampling-based approaches\cite{}, and graph-search algorithms~\cite{}.
+Many solutions have been proposed for this problem, from learning-based methods~\cite{wang2024viper}, sampling-based approaches\cite{stiffler2014sampling,stiffler2016pursuit}, and graph-search algorithms~\cite{kolling2009pursuit}.
 However, in the literature, practitioners tend to compare only against solutions they have readily available - ignoring suitable baselines from other problem formulations and only evaluating on limited subsets of the total problem space.
 As such, the state of the art is lacking in honest analysis and comparison of different approaches to multi-agent differential games.
 
-Following the growth of popularity of game theory, an effort to evaluate the performance of different strategies was undertaken on Axelrod's tournament - a contest in which different policies were pitted against each other in varying conditions to compare outcomes.
+Following the growth of popularity of game theory, an effort to evaluate the performance of different strategies was undertaken in the form of Axelrod's tournament - a contest in which different policies are pitted against each other in varying conditions to compare outcomes.
 Here, we pursue a simplified version of Axelrod's tournament on one differential game.
 We implement four approaches to the multi-pursuer observability-based pursuit evasion game, and compare them on numerous scenarios using common metrics.
 We identify and analyse the behaviours of each method under various conditions that challenge their formulations, and use the information to recommend steps for future works.
 
-The remainder of this work is organized as follows; in Section \ref{sec:lit_rev}, we review the related works; in Section \ref{sec:background}, we state the exact problem formulation; in Section \ref{sec:algo}, we detail the individual algorithms we implement and evaluate, in Section \ref{}, we detail our methodology for comparison; in Section \ref{sec:comp}, we discuss and analyse the methods comparisons and failure modes; and in Section \ref{sec:open_prob}, we identify promising areas for further investigatin.
+The remainder of this work is organized as follows; in Section \ref{sec:background}, we state the exact problem formulation and review necessary background information; in Section \ref{sec:lit_rev}, we review the related works; in Section \ref{sec:algo}, we detail the individual algorithms we implement and evaluate; in Section \ref{sec:comp}, we detail our methodology for comparison; in Section \ref{sec:results}, we discuss and analyse the methods comparisons and failure modes; and in Section \ref{sec:open_prob}, we identify promising areas for further investigation.
 
 \section{Background} \label{sec:background}
 
 \subsection{Pursuit-Evasion Games}
 
-Pursuit-evasion games study the interaction between one or more pursuers and one or more evaders moving in a domain $\mathcal{D} \subset \mathbb{R}^d$. 
+Pursuit-evasion games study the interaction between one or more pursuers and one or more evaders moving in a configuration space $\mathcal{C} \subset \mathbb{R}^d$. 
 The objective of the pursuers is to capture the evaders, while the evaders aim to avoid capture. 
 These problems arise in robotics, control theory, and differential games.
 
