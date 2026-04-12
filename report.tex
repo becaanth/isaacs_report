@@ -102,17 +102,18 @@ For a pursuer at $x_i$, its visibility region is
 We refer to the joint Visibility region of all pursuers as $\mathcal{V}$. 
 In this variation of the pursuit evasion-game, the evader is often treated as an abstraction rather than a physical entity. 
 We assume the position of the pursuer $e(t) \in \mathcal{C}$ at time $t$ is a continuous function $e:[0,\infty) \to\mathcal{C}$ that describes the path of the evader moving at arbitrary speeds. 
-This allows the evader to inhabit any location in a connected subspace $\mathcal{S}\in \mathcal{C}\\ \mathcal{V}(x)$. We refer to $\mathcal{S}(t)$ as the shadow set at time $t$. 
+This allows the evader to inhabit any location in a connected subspace $\mathcal{S}\in \frac{ \mathcal{C}} { \mathcal{V}(x)}$, with the fraction denoting the exclusion of $\mathcal{V}(x)$ from $\mathcal{C}$. 
+We refer to $\mathcal{S}(t)$ as the shadow set at time $t$. 
 
 Unlike classical pursuit-evasion, the goal is not immediate capture of the evader but guaranteed detection. 
 The pursuers seek strategies that ensure that, regardless of the evader trajectory, the evader will eventually be observed:
 \[
-\exists\, T < \infty \ \text{such that} \ e(T) \in \bigcup_{i=1}^N \mathcal{V}(x_i(T)).
+\exists\, T < \infty \ \text{such that} \ e(T) \in \mathcal{V}()T).
 \]
 
-A central concept is the partition of $\mathcal{C}$ into cleared and contaminated regions. 
+A central concept in these games is the partition of $\mathcal{C}$ into cleared and contaminated regions. 
 A point $y \in \mathcal{C}$ is cleared at time $t$ if it has been visible to some pursuer at some prior time and cannot be re-entered by the evader without being detected. 
-This is equivalent to it not being path-connected to a contaminated region.
+This is equivalent to it not having been path-connected to a contaminated region.
 Otherwise, the point is contaminated.
 Let $\mathcal{\tilde{S}}(t)$ and $\mathcal{\bar{S}}(t)$ denote the cleared and contaminated regions, respectively, with
 \[
@@ -122,7 +123,6 @@ Pursuer strategies must ensure that $\mathcal{\bar{S}}(t)$ shrinks monotonically
 This effectively collapses to a constrained form of the frontier expansion problem, where frontiers are dynamic and may rejoin each other.
 
 The visibility-based pursuit-evasion problem is significantly harder than classical pursuit-evasion due to partial information and the need for coordination. 
-Determining the minimum $N$ required for guaranteed detection is generally NP-hard~\cite{vis_pursuit}. 
 This leads to many discretizations, sampling-based methods and learning approaches to the problem.
 
 \subsection{Shadow Events}
@@ -130,27 +130,23 @@ Central to some algorithms in the literature is the concept of shadow events.
 This framework provides a conceptual analog of pursuer movement that neatly fits into the N-Pursuer Visibility-Based Pursuit-Evasion game.
 Briefly, shadow events describe a framework for propagating labels assigned to particular unseen regions in a space based on a hierarchy of dominance under common interactions.
 
-Introduced in \cite{guibas1999visibility}, shadow events are primarily used to keep track of contaminated areas in the game's space of interest.
+Introduced in \cite{guibas1999visibility}, shadow events are primarily used to keep track of contaminated areas in the game's space of interest $\mathcal{D}$.
 As such, the labels of concern are whether an area is clear or contaminated.
-Naturally, contaminated labels dominate cleared labels, as when a shadow we have cleared intersects with an unchecked shadow, the evading agent may move into the previously check space.
+Naturally, contaminated labels dominate cleared labels, as when a shadow we have cleared intersects with an unchecked shadow, the evading agent may move into the previously checked space $\mathcal{\tilde{S}}$.
 
 Five main shadow events are introduced. These are
 \begin{itemize}
 	\item Appear - A shadow is instantiated when a previously seen part of the environment becomes hidden.
-	\item Disappear - Existing shadows vanish when the come into the visibility cone of the pursuers.
-	\item Merge - Two or more existing shadows join together and adopt the same shadow label when a shadow appears linking them together.
+	\item Disappear - Existing shadows vanish when they come into the visibile set of the pursuers $\mathcal{V}$.
+	\item Merge - Two or more existing shadows join together and adopt the same shadow label when a shadow appears linking them together, based on dominance.
 	\item Split - One shadow can be divided into multiple shadows when the pursuers visibility cones cause them to be non-path connected in 4-neighbour space.
 \end{itemize}
-In practice these events are calculated on a continuous space by discretizing into a grid, calculating shadows based on line of sight from agent positions in a joint configurations, and propagating dominant labels to the 4-neighbours of any unseen cell. 
-
-Before desribing the process of propogating labels, we begin with the following definition. 
-A shadow is clear at a time $t$ if it is not possible for an evader, as defined earlier, to inhabit the shadow. 
-Otherwise, a shadow is contaminated.
+In practice these events are calculated on a continuous space by discretizing into a grid, calculating shadows based on line of sight from agent positions in a joint configuration, and propagating dominant labels to the 4-neighbours of any unseen cell. 
 
 We may now state the relationship between the shadow events and labels as
 \begin{itemize}
-	\item Appear - A shadow appearing from previously visible areas is marked clear.
-	\item Disappear - Labels are discarded
+	\item Appear - A shadow appearing from previously visible areas $\mathcal{V}(t)$ is marked clear.
+	\item Disappear - All disappearing labels are discarded.
 	\item Merge - When shadows merge, the dominant label is assigned to all of the shadows. That is to say, if any of the merging shadows is contaminated,the resulting shadow is contaminated, and otherwise it is clear.
 	\item Split - All shadows resulting from a split inherit the label of the original shadow.
 \end{itemize}
@@ -167,37 +163,40 @@ As such we find it useful to utilize shadow labels as a metric in the evaluation
 
 
 \subsection{Sampling-Based Motion Planning}
-The Probabilistic Roadmap (PRM) is a sampling-based motion planning algorithm designed for multi-query scenarios in high-dimensional configuration spaces~\cite{kavraki1996probabilistic}. 
-PRM constructs an undirected graph (roadmap) $G = (V, E)$ that approximates the connectivity of $\mathcal{C}_{\mathrm{free}}$. The algorithm proceeds in two phases:
+The Probabilistic Roadmap~(PRM) is a sampling-based motion planning algorithm designed for multi-query scenarios in high-dimensional configuration spaces~\cite{kavraki1996probabilistic}. 
+PRM constructs an undirected graph (roadmap) $G = (V, E)$ that approximates the connectivity of $\mathcal{C}$. 
+The algorithm proceeds in two phases; a sampling phase and a query phase.
 
-During the initial sampling phase, a set of $n$ configurations $\{q_1, \dots, q_n\}$ is sampled independently from $\mathcal{C}_{\mathrm{free}}$, typically using a uniform distribution:
+During the initial sampling phase, a set of $n$ configurations $\{q_1, \dots, q_n\}$ is sampled uniformly from $\mathcal{C}$
 \[
-q_i \sim \mathrm{Unif}(\mathcal{C}_{\mathrm{free}}).
+q_i \sim \mathrm{Unif}(\mathcal{C}).
 \]
-Each valid sample becomes a vertex in $V$. For each $q_i$, a set of neighboring vertices is selected using a metric $\rho(\cdot,\cdot)$ (e.g., $k$-nearest neighbors or within radius $r_n$). For each neighbor $q_j$, a local planner attempts to connect $q_i$ and $q_j$ by a simple path:
+Each valid sample becomes a vertex in $V$. 
+For each $q_i$, a set of neighboring vertices is selected using a metric $\rho(\cdot,\cdot)$. 
+For each neighbor $q_j$, a local planner attempts to connect $q_i$ and $q_j$ by a simple path:
 \[
-\sigma_{ij}(t) = (1 - t) q_i + t q_j, \quad t \in [0,1].
+\epsilon_{ij}(t) = (1 - t) q_i + t q_j, \quad t.
 \]
-An edge $(q_i, q_j) \in E$ is added if $\sigma_{ij}(t) \subset \mathcal{C}_{\mathrm{free}}$.
+An edge $(q_i, q_j) \in E$ is added if $\epsilon_{ij}(t) \subset \mathcal{C}$.
 
 In the query phase, given start and goal configurations $q_{\mathrm{start}}, q_{\mathrm{goal}} \in \mathcal{C}$, are connected to nearby vertices in $G$ using the local planner. 
 A graph search algorithm is then used to find a path in $G$.
 
-PRM is probabilistically complete: if a path exists in $\mathcal{C}_{\mathrm{free}}$, the probability that PRM finds a solution approaches $1$ as $n \to \infty$.
+PRM is probabilistically complete: if a path exists in $\mathcal{C}$, the probability that PRM finds a solution approaches $1$ as $n \to \infty$.
 Under appropriate connection strategies, PRM variants can achieve asymptotic optimality, and have been applied to numerous multi-robot problems~\cite{CLARK2005244}.
 
 
 
 \subsection{Graph-Based Motion Planning}
 
-Graph-based motion planning transforms the continuous $C$-space into a discrete topological representation $G = (V,E)$. In this formulation, vertices $v \in V$ represent discrete configurations in $C_{free}$, while edges $e \in E$ represent feasible transitions between them. The framework typically follows a three step pipeline: a discretization phase, followed by edge weight assignment based on cost metrics, and a graph search algorithm to extract a least-cost path.
+Graph-based motion planning transforms the continuous $C$-space into a discrete topological representation $G = (V,E)$. In this formulation, vertices $v \in V$ represent discrete configurations in $\mathcal{C}$, while edges $\epsilon \in E$ represent feasible transitions between them. The framework typically follows a three step pipeline: a discretization phase, followed by edge weight assignment based on cost metrics, and a graph search algorithm to extract a least-cost path.
 
 The literature offers diverse approaches. Discretization may utilize exact cell decompositions (i.e. visibility graphs, Morse cells, or convex partitions \cite{choset2005principles}), or approximate grid-based decompositions. While classic methods like Breadth-First-Search (BFS) or Depth-First-Search (DFS) provide basic connectivity, modern motion planning heavily leverages informed search heuristics (namely A*) to manage the computational complexity inherent in high-dimensional state spaces.
 
 \subsection{Multi-Agent Reinforcement Learning}
 
 Reinforcement learning~(RL) studies sequential decision-making problems in which an agent selects actions from observations and updates its policy using scalar rewards.
-In the standard Markov decision process~(MDP) formulation, a policy $\pi_\theta(a_t\mid s_t)$ is trained to maximize expected return,
+In the standard Markov decision process~(MDP) formulation, a policy $\pi_\theta(a_t\mid s_t)$ is trained to maximize discounted expected return,
 \[
 J(\theta)=\mathbb{E}_{\pi_\theta}\left[\sum_{t=0}^{T}\gamma^t r_t\right].
 \]
@@ -218,8 +217,9 @@ For spatial multi-agent problems, learned policies are often paired with graph n
 \section{Literature Review}\label{sec:lit_rev}
 % Provide a structured review of seminal and recent work in your topic area. You should attemp to provide a (brief) taxonomy of research results, organized in such a way that someone reading your report will be able ot understand some common research threads
 The pursuit-evasion game was originally introduced by Rufus Isaacs in his seminal work on differential game theory~\cite{diff_games}.
-Isaacs detailed a method for finding optimal solutions to differential games, relying on an equation, dubbed the Hamilton-Jacobi-Isaacs~(HJI) equation.
-The solution to this equation is tractable to calculate analytically in low-dimensional spaces.
+Isaacs detailed a method for finding optimal solutions to differential games.
+The solution to this equation is tractable to calculate analytically in low-dimensional spaces with simple dynamics.
+As we are concerned with a far more complex game with high dimensionality, visibility constraints, and more complex configuration spaces, we omit discussion of analytical solutions and instead focus on approximate methods.
 Below, we provide an overview of several approaches to the N-pursuer visibility-based pursuit-evasion game. 
 
 \subsection{Sampling-based Approaches}
@@ -228,10 +228,11 @@ Sampling-based motion planning methods have long been studied for their ability 
 Common sampling-based methods include the randomly-exploring rapid tree algorithms~\cite{lavalle98rrt}, the fast marching tree algorithm~\cite{FMT}, and the probabilistic road-map~(PRM) algorithm~\cite{kavraki1996probabilistic}.
 Unfortunately, these algorithms tend to struggle in joint configuration spaces as a result of the curse of dimensionality, leading to several multi-robot variations~\cite{CLARK2005244}.
 
-Due to the high dimensional nature of the joint configuration space, sampling-based approaches to the problem are fairly common.
-In one such method, Stifler and O'Kane propose a PRM-style planner that utilizes an internal model of the evolution of visible spaces as an additional validity check on expanding nodes during planning~\cite{stiffler2014sampling}.
+Due to the complex nature of the problem space and visibilty model, sampling-based approaches to the this game are fairly common.
+Most works are in this space utilize a PRM-style planner.
+In one such method, Stifler and O'Kane propose on such planner that utilizes an internal model of the evolution of visible spaces as an additional validity check on expanding nodes during planning~\cite{stiffler2014sampling}.
 In a follow up work, the algorithm performance is improved through the use of domain-specific pose sampling, and a solution-refinement method~\cite{vis_roadmap}.
-Several additional extensions to this method have been considered, including the improvement robustness to individual robot failures~\cite{stiffler2020planning}, and the addition of probabilistic completeness guarantees~\cite{stiffler2024asymptotically} and the consideration of more complex sensing models~\cite{stiffler2016pursuit}.
+Several additional extensions to this method have been considered, including the improvement of robustness to individual robot failures~\cite{stiffler2020planning}, the addition of probabilistic completeness guarantees~\cite{stiffler2024asymptotically}, and the consideration of more complex sensing models~\cite{stiffler2016pursuit}.
 
 
 \subsection{Graph-based Approaches}
@@ -261,9 +262,9 @@ ViPER also uses an attentive critic, similar in motivation to MAAC~\cite{iqbal20
 Its main limitation is that it does not certify clearing in the same way as complete planners; success must be measured by the simulator or an external contamination tracker.
 
 
-\section{ Implementation}\label{sec:algo}
+\section{Implementation}\label{sec:algo}
 % What did you implement, and what were the results you obtained? What information is presented in the tables, figures, and diagrams you have included? This is the 'meat' of the report - when writing this section, step back and consider how best to convey your results to someone who is new to the topic.
-As we are interested in comparing recent developments in the field, we sampled and implemented 4 algorithms, one from each problem formulation.
+As we are interested in comparing recent developments in the field, we sampled and implemented 4 algorithms, with at least one from each problem formulation.
 These are then compared on common metrics using a series of different maps.
 Below, we detail every algorithm selected for comparison.
 
