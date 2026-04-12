@@ -10,6 +10,7 @@
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{xcolor}
+\addbibresource{references.bib}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
 
@@ -200,6 +201,24 @@ The literature offers diverse approaches. Discretization may utlize exact cell d
 
 \subsection{Multi-Agent Reinforcement Learning}
 
+Reinforcement learning~(RL) studies sequential decision-making problems in which an agent selects actions from observations and updates its policy using scalar rewards.
+In the standard Markov decision process~(MDP) formulation, a policy $\pi_\theta(a_t\mid s_t)$ is trained to maximize expected return,
+\[
+J(\theta)=\mathbb{E}_{\pi_\theta}\left[\sum_{t=0}^{T}\gamma^t r_t\right].
+\]
+Robotic pursuit-evasion is usually only partially observable, so the policy is often conditioned on local observations $o_t$, partial maps, or observation histories rather than the true full state.
+
+Multi-agent reinforcement learning~(MARL) generalizes this setting to $N$ decision-making agents.
+Each agent $i$ receives an observation $o_i(t)$, chooses an action $a_i(t)$, and the joint action $a(t)=(a_1(t),\ldots,a_N(t))$ determines the next state and team reward.
+In cooperative games, the agents may share a common reward, but the policy must still determine which individual actions contributed to the team-level outcome.
+This is the credit assignment problem.
+Independent learning also makes the environment non-stationary from the perspective of any one agent, since the other agents' policies change during training.
+
+A common way to address this issue is centralized training with decentralized execution~(CTDE).
+During training, a critic or value estimator may use additional information such as the full team state, while execution is performed by decentralized policies.
+Actor-critic algorithms are a common implementation of this idea: the actor represents the policy, while the critic estimates the value of states or state-action pairs and guides the policy update.
+Off-policy methods reuse stored experience, while on-policy methods update from recently collected trajectories.
+For spatial multi-agent problems, learned policies are often paired with graph neural networks or attention layers so that variable-size maps and teams can be encoded without flattening everything into a fixed-size vector.
 
 \section{Literature Review}
 % Provide a structured review of seminal and recent work in your topic area. You should attemp to provide a (brief) taxonomy of research results, organized in such a way that someone reading your report will be able ot understand some common research threads
@@ -214,6 +233,23 @@ The most relevant paper for our tournament (respecting all game constraints) pro
 Some recent works tackle similar problem formulations, but do not qualify for the restrictions of this comparison. Namely, Zhou \cite{zhou2016cooperative} and Huang \cite{huang2011guaranteed} separately develop decentralized strategies for multiple pursuers in planar environments based on Voronoi decompositions; but evaders have finite speed. Bhattacharya et. al \cite{BHATTACHARYA20101745} analyze a cops and robber game in multidimensional grids, but cops are able to ``teleport'' across cells.
 
 \subsection{Learning-based Approaches}
+
+Learning-based approaches to pursuit-evasion can be separated into two broad groups.
+The first considers pursuit as a chasing or interception problem, where the evader's state is available to the pursuers.
+For example, decentralized deep RL has been used to train multiple pursuers under local sensing and communication constraints~\cite{de2021decentralized}.
+These methods are relevant for multi-agent coordination, but they do not address the clearing problem considered here because the evader is localized and has bounded dynamics.
+
+The second group uses learning as a substitute for explicit search over the information space.
+Rather than enumerating all possible contamination labels, a policy learns useful clearing and guarding behavior from simulation.
+This can scale better at execution time, but it trades away the completeness guarantees associated with graph-search methods.
+
+ViPER~(Visibility-based Pursuit-Evasion via Reinforcement Learning) is the most directly relevant learning-based approach for this report~\cite{wang2024viper}.
+It is designed specifically for visibility-based clearing with omniscient, potentially arbitrarily fast evaders.
+ViPER builds a graph of candidate viewpoints over the known free space, augments each node with frontier and clearing information, and uses graph attention to learn which neighboring viewpoint each agent should visit next.
+The method follows CTDE, similar in spirit to multi-agent actor-critic methods such as MADDPG~\cite{lowe2017multiagent}: the deployed policy is decentralized, while the training critic uses privileged map and team-action information.
+ViPER also uses an attentive critic, similar in motivation to MAAC~\cite{iqbal2019actor}, to improve credit assignment.
+Its main limitation is that it does not certify clearing in the same way as complete planners; success must be measured by the simulator or an external contamination tracker.
+
 
 \section{Algorithm Implementation}
 % What did you implement, and what were the results you obtained? What information is presented in the tables, figures, and diagrams you have included? This is the 'meat' of the report - when writing this section, step back and consider how best to convey your results to someone who is new to the topic.
@@ -247,6 +283,32 @@ Finally, a minimum cycle length is set to ensure that computation is not wasted 
 Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space.
 With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
+\subsection{ViPER}
+
+ViPER is the learning-based algorithm included in our comparison.
+It represents the known free space as a graph $G_t=(V_t,E_t)$ of candidate viewpoints and traversable edges.
+At every decision step, each pursuer observes an augmented version of this graph containing relative node positions, teammate occupancy, frontier utility, uncovered-frontier utility, cleared-state indicators, and an $A^*$ guide signal.
+The shared policy $\pi_\theta(a_i(t)\mid o_i(t))$ then chooses a neighboring viewpoint for each pursuer, so the learned action space remains tied to feasible motion on the map.
+
+The environment state follows the same cleared/contaminated interpretation used elsewhere in this report.
+The map is divided into occupied cells $\mathcal{M}_o$, free cells $\mathcal{M}_f$, and cleared cells $\mathcal{M}_c$; uncovered frontiers between $\mathcal{M}_c$ and $\mathcal{M}_f\setminus\mathcal{M}_c$ are the locations through which a worst-case evader can recontaminate cleared space.
+ViPER optimizes synchronized team motion, where the cost of a step is the longest distance traveled by any pursuer before the next decision.
+Its shared reward is
+\[
+\begin{aligned}
+r_t =
+c_1\left(|\mathcal{M}_{c,t+1}|-|\mathcal{M}_{c,t}|\right)
+-c_2 \max_i \|\psi_i(t+1)-\psi_i(t)\|\\
+{}+
+\mathbf{1}_{\mathcal{M}_c=\mathcal{M}_f^*}r_f .
+\end{aligned}
+\]
+The first term rewards net clearing, the second penalizes team travel, and the final term rewards full task completion.
+
+The network uses graph attention to encode the current viewpoint graph and a decoder that scores only feasible neighboring nodes.
+Training uses Soft Actor-Critic~\cite{haarnoja2018soft} under CTDE: the actor receives the decentralized graph observation, while the critic is given privileged map and team-action information.
+During evaluation, only the actor is used.
+In our implementation, ViPER is treated as an online planner: we construct the visibility graph, compute node features from the shared map, query the actor for each pursuer, execute the selected moves, and evaluate the resulting trajectory with the same shadow-tracking and tournament metrics used for the other methods.
 
 \section{Comparison Methodology}
 
@@ -257,4 +319,3 @@ With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
 
 \end{document}
-
