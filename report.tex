@@ -2,7 +2,7 @@
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{amsmath,amssymb,amsfonts}
-\usepackage{algorithmic}
+\usepackage{algpseudocode}
 \usepackage{graphicx}
 \usepackage{textcomp}
 % \usepackage{cite}
@@ -11,6 +11,7 @@
 \usepackage{xcolor}
 \usepackage{multirow}
 \usepackage{cite}
+\usepackage[]{algorithm}
     
 \begin{document}
 
@@ -300,6 +301,39 @@ The second is edge-length, with a maximum distance being set between two configu
 Finally, a minimum cycle length is set to ensure that computation is not wasted on low-information configuration changes. Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space. 
 The full procedure is outlined in pseudo-code in Algorithm \ref{alg:sbpeg}.
 
+\begin{algorithm}[h]
+	\caption{Sampling-Based Pursuit-Evasion (SB-PEG)} \label{alg:sbpeg}
+	\begin{algorithmic}[1]
+		\Require Configuration Space $\mathcal{C}$, $N$ pursuers, initial joint state $q_0$
+		\Ensure Joint pursuer paths achieving full visibility coverage
+		
+		\State Initialize graph $\mathcal{G}$ with root node $q_0$
+		\State Initialize visibility coverage $\mathcal{V}$
+		
+		\While{there exists unseen region in $\mathcal{C}$}
+		\State Sample a random joint configuration $p_{\text{rand}} \in \mathcal{C}$
+		\color{black}
+		\State Select nearest nodes $v_{v:j} \in \mathcal{T}$ to $p_{\text{rand}}$
+		
+		\State Generate a feasible motions $\sigma_i$ for pursuers from $q_{v:j}$
+		
+		\State Construct new joint state $q'$
+		\State Compute updated visibility:
+		\[
+		\mathcal{V} \gets \mathcal{V} \cup V(q')
+		\]
+		
+		\If{$\mathcal{\tilde{S}}(q')$ strictly increases}
+		\State Add $q'$ to $\mathcal{G}$ with edges $(q_{v:j}, q')$
+		\EndIf
+		\color{black}
+		\EndWhile
+		
+		\State Extract a subtree $\mathcal{G}^*$ achieving full coverage
+		
+		\State \Return joint pursuer trajectories
+	\end{algorithmic}
+\end{algorithm}
 
 \subsection{Visibility Roadmaps}
 In \cite{vis_roadmap}, an extension to SG-PEG is proposed. 
@@ -336,6 +370,46 @@ This acts as a post-processing step, filtering out the extraneous plan branches.
 Iteratively, two non-adjacent points from the solution $z_a, z_b$ are selected to check if a shortcut from $z_a$ to $z_b$ is still a valid solution.
 In addition to standard kinematic and collision avoidance constraints, the algorithm checks whether adjusting the solution in this manner clears the same set of shadows as the original solution, using the procedure laid out in Subsection \ref{subsec:peg}.
 We lay out the entire procedure in Algorithm \ref{alg:vis_roadmap}.
+
+
+\begin{algorithm}[h]
+	\caption{Visibility Roadmap Sampling for Multi-Pursuer Pursuit-Evasion} \label{alg:visibility_roadmap}
+	\begin{algorithmic}[1]
+		\Require Configuration Space $\mathcal{C}$, $N$ pursuers, initial joint state $q_0$
+		\Ensure Joint pursuer paths achieving full visibility coverage
+		
+		\State Initialize roadmap $\mathcal{G} \gets (\mathcal{V}, \mathcal{E})$ with root $q_0$
+		\State Initialize visibility coverage $\mathcal{V}(q_0)$
+		\State Initialize priority queue $\mathcal{Q} \gets \{q_0\}$
+		\color{black}
+		
+		\While{coverage not complete}
+		\State Sample a pursuer index $i \in \{1,\dots,N\}$
+		\State Sample a path $\sigma_i$ for pursuer $i$ using web sampling
+		\color{black}
+		
+		\State Compute new visibility region $\mathcal{V}_{new} \gets \mathcal{V} \cup \mathcal{V}(\sigma)$
+		
+		\If{$\mathcal{V}_{new}$ adds new area}
+		\State Add new node $q'$ to $\mathcal{\tilde{S}}$ with coverage $\mathcal{V}_{new}$
+		\State Add edge $(q, q')$ to $\mathcal{E}$
+		\State Insert $q'$ into $\mathcal{Q}$ (prioritized by coverage gain)
+		\EndIf
+		\EndWhile
+		
+		\State Extract solution subtree $\mathcal{T} \subseteq \mathcal{G}$ achieving full coverage
+		
+		\State \textbf{// Refinement Phase}
+		\For{each path segment in $\mathcal{T}$}
+		\State Locally resample and shortcut paths to reduce cost
+		\State Preserve visibility constraints during refinement
+		\EndFor
+		\color{black}
+		
+		\State \Return joint pursuer trajectories from $\mathcal{T}$
+	\end{algorithmic}
+\end{algorithm}
+
 
 \subsection{ViPER}
 
