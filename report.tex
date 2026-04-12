@@ -42,17 +42,17 @@
 
 \section{Introduction}
 % give a high level overview of your project - is it a technique, or the application of a specific algorithm, etc.? Who (worldwide) the major players in the area? Why is the topic interesting?
-Adversarial games in continuous spaces have long been studied under the field of differential game theory, developed by Rufus Isaac's in the 1950s~\cite{}.
+Adversarial games in continuous spaces have long been studied under the field of differential game theory, developed by Rufus Isaac's in the 1960s~\cite{}.
 These games, contrary to their discrete classical game theoretical counterpoints, have the evolution of the game evolve according to differential equations.
 Differential games have been used in several application spaces, such as perimeter defense, risk-averse landing path planning for airplanes, and ... \cite{}.
 In robotics, differential games find many applications in military ...
 
-Recently, more interest has been taken in multi-agent differential games~\cite{}. 
+Recently, more interest has been taken in multi-agent differential games. 
 These, of course, model more realistic scenarios and engagements. 
-However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of computing Hamilton-Jacobi-Isaacs solutions.~\cite{}
+However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of computing Hamilton-Jacobi-Isaacs solutions~\cite{}.
 
 One such multi-agent game is the multi-pursuer vision-based pursuit evasion game.
- In this formulation, the evader, or evaders, are often treated as abstract entities that can move at arbitrary speeds. 
+In this formulation, the evader, or evaders, are often treated as abstract entities that can move at arbitrary speeds. 
  This forces the pursuing team to plan for the worst-case scenario.
  As such, the problem devolves into a type of constrained frontier expansion problem on a known path.
  This makes the formulation of interest to motion planning researchers.
@@ -88,7 +88,7 @@ where $u_p(t), u_e(t) \in \mathcal{U}$ are control inputs subject to bounded spe
 for some radius $\varepsilon > 0$.
 
 The pursuer seeks a control strategy $u_p(\cdot)$ that guarantees capture in finite time, while the evader seeks to maximize the capture time or avoid capture indefinitely. 
-Strategies may be open-loop or feedback, and optimal strategies are often characterized using tools from differential game theory, such as Hamilton--Jacobi--Isaacs (HJI) equations.
+Strategies may be open-loop or feedback, and optimal strategies are often characterized using tools from differential game theory, such as Hamilton-Jacobi-Isaacs (HJI) equations.
 In higher dimensional spaces, ore even with more complex kinematics, solutions to these equations are often intractable to compute.
 
 Pursuit-evasion problems are closely related to motion planning under uncertainty and adversarial conditions. 
@@ -225,8 +225,6 @@ The pursuit-evasion game was originally introduced by Rufus Isaacs in his semina
 Isaacs detailed a method for finding optimal solutions to differential games, relying on an equation, dubbed the Hamilton-Jacobi-Isaacs~(HJI) equation.
 The solution to this equation is tractable to calculate analytically in low-dimensional spaces.
 More recently, work has focused on extending solution methodologies for the pursuit-evasion game to high-dimensional spaces~\cite{bibid}, or scenarios with more agents~\cite{}.
-
-The visibility-based pursuit-evasion game was first introduced by Suzuki and Yamashita~\cite{}.
 Follow up works focused on the development of provably complete methods~\cite{}, optimal search~\cite{}, or restrictions on pursuer capabilities~\cite{}.
 
 Below, we provide an overview of several approaches to the N-pursuer visibility-based pursuit-evasion game. 
@@ -234,7 +232,7 @@ Below, we provide an overview of several approaches to the N-pursuer visibility-
 \subsection{Sampling-based Approaches}
 
 Sampling-based motion planning methods have long been studied for their ability to find high-quality solutions to challenging configuration spaces in reasonable amounts of time~\cite{bibid}.
-Common sampling-based methods include the randomly-explkoring rapid tree algorithms~\cite{}, the fast marching tree algorithm~\cite{}, and the probabilistic road-map~(PRM) algorithm.
+Common sampling-based methods include the randomly-exploring rapid tree algorithms~\cite{}, the fast marching tree algorithm~\cite{}, and the probabilistic road-map~(PRM) algorithm.
 Unfortunately, these algorithms tend to struggle in joint configuration spaces as a result of the curse of dimensionality, leading to several multi-robot variations~\cite{}.
 
 Due to the high dimensional nature of the joint configuration space, sampling-based approaches to the problem are fairly common.
@@ -327,7 +325,7 @@ The pursuit-evasion graph is constructed by sampling points from these webs with
 
 
 The second innovation of note is the inclusion of a solution refinement step, devised to reduce unnecessary movement of the robots.
-This acts as a post-processing step, filtering out the extraneuous plan branches.
+This acts as a post-processing step, filtering out the extraneous plan branches.
 Iteratively, two non-adjacent points from the solution $z_a, z_b$ are selected to check if a shortcut from $z_a$ to $z_b$ is still a valid solution.
 In addition to standard kinematic and collision avoidance constraints, the algorithm checks whether adjusting the solution in this manner clears the same set of shadows as the original solution, using the procedure laid out in Subsection \ref{subsec:peg}.
 
