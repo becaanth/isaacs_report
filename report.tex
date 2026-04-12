@@ -542,10 +542,10 @@ We evaluate the methods described in Section~\ref{sec:algo} using a unified set 
 ath length is computed as the cumulative distance traveled by all pursuers and is measured online during execution.
 Experiments are conducted on four maps with varying structural complexity: \texttt{simple\_obs}, \texttt{ring}, \texttt{H\_map}, and \texttt{convex\_obstacles}. 
 These environments range in size from $40\times40$\,m to $64\times64$\,m and contain both convex and non-convex obstacles. 
-The \texttt{simple\_obs} map includes several polygonal obstacles and a large circular obstacle, which complicates decomposition into convex regions for methods which incroperate this into planning. 
-The \texttt{ring} map consists of two enclosing walls with narrow gaps, requiring coordinated clearing to avoid recontamination. 
-The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared edliberatly before advancing. 
-Finally, \texttt{convex\_obstacles} features multiple convex obstacles and presents the greatest challenge for recontamiation.
+The \texttt{simple\_obs} map includes several polygonal obstacles and a large circular obstacle, which complicates decomposition into convex regions for methods which incroperate this into planning, visualized in Figure \ref{fig:map1}. 
+The \texttt{ring} map consists of two enclosing walls with narrow gaps, requiring coordinated clearing to avoid recontamination, visualized in Figure \ref{fig:map2}. 
+The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared edliberatly before advancing, visualized in Figure \ref{fig:map3}. 
+Finally, \texttt{convex\_obstacles} features multiple convex obstacles and presents the greatest challenge for recontamiation, visualized in Figure \ref{fig:map4}.
 
 \begin{figure}[t]
 	\centering
@@ -553,14 +553,14 @@ Finally, \texttt{convex\_obstacles} features multiple convex obstacles and prese
 	\begin{subfigure}[b]{0.45\linewidth}
 		\centering
 		\includegraphics[width=\linewidth]{figs/simple_obs.png}
-		\caption{Map 1 description}
+		\caption{\texttt{simple\_obs} }
 		\label{fig:map1}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[b]{0.45\linewidth}
 		\centering
 		\includegraphics[width=\linewidth]{figs/ring.png}
-		\caption{Map 2 description}
+		\caption{\texttt{ring}}
 		\label{fig:map2}
 	\end{subfigure}
 	
@@ -569,18 +569,18 @@ Finally, \texttt{convex\_obstacles} features multiple convex obstacles and prese
 	\begin{subfigure}[b]{0.45\linewidth}
 		\centering
 		\includegraphics[width=\linewidth]{figs/hmap.png}
-		\caption{Map 3 description}
+		\caption{\texttt{H\_map}}
 		\label{fig:map3}
 	\end{subfigure}
 	\hfill
 	\begin{subfigure}[b]{0.45\linewidth}
 		\centering
 		\includegraphics[width=\linewidth]{figs/conv_obst.png}
-		\caption{Map 4 description}
+		\caption{\texttt{convex\_obstacles}}
 		\label{fig:map4}
 	\end{subfigure}
 	
-	\caption{Comparison of four maps used in evaluation.}
+	\caption{Visualization of four maps used in evaluation.}
 	\label{fig:maps}
 \end{figure}
 
