@@ -203,13 +203,13 @@ J(\theta)=\mathbb{E}_{\pi_\theta}\left[\sum_{t=0}^{T}\gamma^t r_t\right].
 \]
 Robotic pursuit-evasion is usually only partially observable, so the policy is often conditioned on local observations $o_t$, partial maps, or observation histories rather than the true full state.
 
-Multi-agent reinforcement learning~(MARL) generalizes this setting to $N$ decision-making agents.
+Multi-agent reinforcement learning~(MARL) generalizes this setting to $N$ decision-making agents~\cite{busoniu2008comprehensive}.
 Each agent $i$ receives an observation $o_i(t)$, chooses an action $a_i(t)$, and the joint action $a(t)=(a_1(t),\ldots,a_N(t))$ determines the next state and team reward.
 In cooperative games, the agents may share a common reward, but the policy must still determine which individual actions contributed to the team-level outcome.
 This is the credit assignment problem.
 Independent learning also makes the environment non-stationary from the perspective of any one agent, since the other agents' policies change during training.
 
-A common way to address this issue is centralized training with decentralized execution~(CTDE).
+A common way to address this issue is centralized training with decentralized execution~(CTDE)~\cite{lowe2017multiagent}.
 During training, a critic or value estimator may use additional information such as the full team state, while execution is performed by decentralized policies.
 Actor-critic algorithms are a common implementation of this idea: the actor represents the policy, while the critic estimates the value of states or state-action pairs and guides the policy update.
 Off-policy methods reuse stored experience, while on-policy methods update from recently collected trajectories.
