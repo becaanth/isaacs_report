@@ -165,22 +165,24 @@ As such we find it useful to utilize shadow labels as a metric in the evaluation
 
 
 \subsection{Sampling-Based Motion Planning}
-Two core algorithms are of interest in the context of this comparison: randomly exploring rapid trees~(RRT) and probabalistic road maps~(PRM).
-Both algorithms build upon the theoretical framework of the random geometric graph~(RGG), a structure ...
-This imbues them with the property of \textit{probabilistic completenes}. As the number of samples taken approaches infinity, the probability of finding an optimal solution tend to $1$.
-Of course, the algorithms vary in specifics, as detailed below.
+The Probabilistic Roadmap (PRM) is a sampling-based motion planning algorithm designed for multi-query scenarios in high-dimensional configuration spaces~\cite{kavraki1996probabilistic}. 
+PRM constructs an undirected graph (roadmap) $G = (V, E)$ that approximates the connectivity of $\mathcal{C}_{\mathrm{free}}$. The algorithm proceeds in two phases:
 
-RRT algorithms build upon the random sampling of the configuration space around a robot to expand a tree. We begin by defining the ...
+During the initial sampling phase, a set of $n$ configurations $\{q_1, \dots, q_n\}$ is sampled independently from $\mathcal{C}_{\mathrm{free}}$, typically using a uniform distribution:
+\[
+q_i \sim \mathrm{Unif}(\mathcal{C}_{\mathrm{free}}).
+\]
+Each valid sample becomes a vertex in $V$. For each $q_i$, a set of neighboring vertices is selected using a metric $\rho(\cdot,\cdot)$ (e.g., $k$-nearest neighbors or within radius $r_n$). For each neighbor $q_j$, a local planner attempts to connect $q_i$ and $q_j$ by a simple path:
+\[
+\sigma_{ij}(t) = (1 - t) q_i + t q_j, \quad t \in [0,1].
+\]
+An edge $(q_i, q_j) \in E$ is added if $\sigma_{ij}(t) \subset \mathcal{C}_{\mathrm{free}}$.
 
-PRM instead builds upon the idea of ...
+In the query phase, given start and goal configurations $q_{\mathrm{start}}, q_{\mathrm{goal}} \in \mathcal{C}$, are connected to nearby vertices in $G$ using the local planner. 
+A graph search algorithm is then used to find a path in $G$.
 
-Most sampling-based motion planning algorithms struggle in higher-dimensional spaces, as a result of the search space growing exponentially in the number of dimensions~\cite{CLARK2005244}. 
-Of course, multi-robot planning exhibits such a property, with the number of dimensions increasing at a rate of $N|s_i|$.
-As a result, several extensions to RRT and PRM have been proposed to improve their performance in joint configuration spaces.
-
-Multi-robot RRT
-
-Multi-robot PRM
+PRM is probabilistically complete: if a path exists in $\mathcal{C}_{\mathrm{free}}$, the probability that PRM finds a solution approaches $1$ as $n \to \infty$.
+Under appropriate connection strategies (e.g., $r_n \sim (\log n / n)^{1/d}$ in $d$ dimensions), PRM variants can achieve asymptotic optimality, and have been applied to numerous multi-robot problems~\cite{CLARK2005244}.
 
 
 
