@@ -283,6 +283,33 @@ Finally, a minimum cycle length is set to ensure that computation is not wasted 
 Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space.
 With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
+
+\subsection{Visibility Roadmaps}
+In \cite{}, an extension to SG-PEG is proposed. 
+Several key innovations are detailed, including an improved visibility-based sampling distribution, a solution refinement method, and a process for iteratively increasing the number of pursuers until a solution can be provided.
+Due to the references to visibility roadmaps in the paper title, we refer to this variant as visibility-roadmap SG-PEG~(VR-SG-PEG).
+We note that, as we are interested in evaluating each detailed algorithm in sterile and identical conditions, we omit the process of increasing the number of pursuers from our method, instead keeping this fixed based on a given configuration.
+
+In place of the uniform sampling recommended in SP-PEG, VR-SP-PEG uses an informed sampling method, referred to as web-sampling, to improve the density of samples in interesting regions.
+By extension, this nominally improves convergence properties of the planner, at the cost of higher levels of computation.
+The sampling proceeds in two phases: an initial visibility covering phase and an intersection sampling phase.
+
+In the first phase, a set of initial points $\mathcal{P}\subset \mathcal{C}$ is constructed, referred to as a covering set.
+This set is generated as follows: each initial point $p$ is sampled sequentially and randomly from outside the set of visible points in $\mathcal{C}$, i.e a sample $p_i$ is selected such that $p_i \notin \cup_{p_j\in \mathcal{P}}\mathcal{V}(p_j)$. This process continues until these mutually non-visible points cover the entire configuration space,$\cup_{p_j\in \mathcal{P}} \mathcal{V}(p_j) = \mathcal{C}$. 
+
+In the second phase, a series of points, denoted by the set $\mathcal{Q}$, are sampled to expand the roadmap data structure.
+This is done by sampling pairs of points $p_i, p_j \in \mathcal{P}$, denoted intersection points.
+A point is then sampled uniformly from the intersection of the individual visibility cones of each point $\mathcal{V}(p_i)\cap \mathcal{V}(p_j)$, if the intersection is non-empty.
+The so-called web is the union of the initial and intersection points $\mathcal{W} = \mathcal{P}\cup \mathcal{Q}$.
+A separate web is sampled for each pursuer, and if a web is ever exhausted, a new set of webs is generated to continue.
+The pursuit-evasion graph is constructed by sampling points from these webs without replacement.
+
+
+The second innovation of note is the inclusion of a solution refinement step, devised to reduce unnecessary movement of the robots.
+This acts as a post-processing step, filtering out the extraneuous plan branches.
+Iteratively, two non-adjacent points from the solution $z_a, z_b$ are selected to check if a shortcut from $z_a$ to $z_b$ is still a valid solution.
+In addition to standard kinematic and collision avoidance constraints, the algorithm checks whether adjusting the solution in this manner clears the same set of shadows as the original solution, using the procedure laid out in Subsection \ref{subsec:peg}.
+
 \subsection{ViPER}
 
 ViPER is the learning-based algorithm included in our comparison.
