@@ -249,7 +249,7 @@ Several additional extensions to this method have been considered, including the
 
 \subsection{Graph-based Approaches}
 
-Guibas and Lavalle \cite{guibas1997visibility} formalized the pursuit-evasion problem in continuous polygonal environments with recontaminations. They develop a complete algorithm for the case of a single pursuer. First, the workspace is partititioned into convex regions, with binary labels indicating contamination, then a search is performed on the resulting quotient information space. By the definition of convexity, all points in a convex cell are mutually visible \cite{boyd2004convex}, therefore, the pursuer's progress is tracked by its transitions between these cells. The distance between centroids as well as the contamination state are used as an information-based heuristic for Dijkstra's algorithm. They show a logarithmic bound on the number of needed pursuers (i.e. the search number) for simply-connected free spaces, but leave multi-agent algorithms for future work. As part of this work, we implemented the Guibas algorithm for a single pursuer.
+Guibas and Lavalle \cite{guibas1999visibility} formalized the pursuit-evasion problem in continuous polygonal environments with recontaminations. They develop a complete algorithm for the case of a single pursuer. First, the workspace is partititioned into convex regions, with binary labels indicating contamination, then a search is performed on the resulting quotient information space. By the definition of convexity, all points in a convex cell are mutually visible \cite{boyd2004convex}, therefore, the pursuer's progress is tracked by its transitions between these cells. The distance between centroids as well as the contamination state are used as an information-based heuristic for Dijkstra's algorithm. They show a logarithmic bound on the number of needed pursuers (i.e. the search number) for simply-connected free spaces, but leave multi-agent algorithms for future work. As part of this work, we implemented the Guibas algorithm for a single pursuer.
 
 The most relevant paper for our tournament (respecting all game constraints) proposes Graph-Clear \cite{kolling2009pursuit}. A team of robots can execute \textit{sweep} actions to detect evaders in a vertex, and \textit{block} actions to prevent intruders from crossing an edge. A strategy consists of a sequence of block and sweep actions to detect all intruders despite possible recontamination. They show the computation of optimal strategies for this game is NP-hard for graphs; therefore the authors propose to create spanning trees, for which a Graph-Clear is a polynomial time algorithm. Intuitively, cycles in the graph are broken by agents executing a block action, reducing the problem to a tree search to be executed by the remaining agents.
 
@@ -382,6 +382,49 @@ Iteratively, two non-adjacent points from the solution $z_a, z_b$ are selected t
 In addition to standard kinematic and collision avoidance constraints, the algorithm checks whether adjusting the solution in this manner clears the same set of shadows as the original solution, using the procedure laid out in Subsection \ref{subsec:peg}.
 
 
+We lay out the entire procedure in Algorithm \ref{alg:vis_roadmap}.
+
+
+\begin{algorithm}[h]
+	\caption{Visibility Roadmap Sampling for Multi-Pursuer Pursuit-Evasion} \label{alg:visibility_roadmap}
+	\begin{algorithmic}[1]
+		\Require Configuration Space $\mathcal{C}$, $N$ pursuers, initial joint state $q_0$
+		\Ensure Joint pursuer paths achieving full visibility coverage
+		
+		\State Initialize roadmap $\mathcal{G} \gets (\mathcal{V}, \mathcal{E})$ with root $q_0$
+		\State Initialize visibility coverage $\mathcal{V}(q_0)$
+		\State Initialize priority queue $\mathcal{Q} \gets \{q_0\}$
+		\color{black}
+		
+		\While{coverage not complete}
+		\State Sample a pursuer index $i \in \{1,\dots,N\}$
+		\State Sample a path $\sigma_i$ for pursuer $i$ using web sampling
+		\color{black}
+		
+		\State Compute new visibility region $\mathcal{V}_{new} \gets \mathcal{V} \cup \mathcal{V}(\sigma)$
+		
+		\If{$\mathcal{V}_{new}$ adds new area}
+		\State Add new node $q'$ to $\mathcal{\tilde{S}}$ with coverage $\mathcal{V}_{new}$
+		\State Add edge $(q, q')$ to $\mathcal{E}$
+		\State Insert $q'$ into $\mathcal{Q}$ (prioritized by coverage gain)
+		\EndIf
+		\EndWhile
+		
+		\State Extract solution subtree $\mathcal{T} \subseteq \mathcal{G}$ achieving full coverage
+		
+		\State \textbf{// Refinement Phase}
+		\For{each path segment in $\mathcal{T}$}
+		\State Locally resample and shortcut paths to reduce cost
+		\State Preserve visibility constraints during refinement
+		\EndFor
+		\color{black}
+		
+		\State \Return joint pursuer trajectories from $\mathcal{T}$
+	\end{algorithmic}
+\end{algorithm}
+
+
+
 \subsection{Pursuit Evasion on Trees}
 The Graph-Clear algorithm~\cite{kolling2009pursuit} provides a complete,
 polynomial-time clearing strategy on a surveillance graph. Agents have two actions, \textit{block} and \textit{sweep}, and work together to reduce graphs to spanning trees that can be searched in polynomial time. In the first stage of the algorithm, $C_{free}$ is decomposed into convex cells, per Fig. \ref{fig:convex}, with vertices representing the cells, and edges representing the boundaries between cells. An important property of convex cells is mutual visibility of all points within the set; an agent on the boundary of two cells can surveil both.
@@ -435,48 +478,6 @@ The algorithm is shown below:
 \EndProcedure
 \end{algorithmic}
 \end{algorithm}
-We lay out the entire procedure in Algorithm \ref{alg:vis_roadmap}.
-
-
-\begin{algorithm}[h]
-	\caption{Visibility Roadmap Sampling for Multi-Pursuer Pursuit-Evasion} \label{alg:visibility_roadmap}
-	\begin{algorithmic}[1]
-		\Require Configuration Space $\mathcal{C}$, $N$ pursuers, initial joint state $q_0$
-		\Ensure Joint pursuer paths achieving full visibility coverage
-		
-		\State Initialize roadmap $\mathcal{G} \gets (\mathcal{V}, \mathcal{E})$ with root $q_0$
-		\State Initialize visibility coverage $\mathcal{V}(q_0)$
-		\State Initialize priority queue $\mathcal{Q} \gets \{q_0\}$
-		\color{black}
-		
-		\While{coverage not complete}
-		\State Sample a pursuer index $i \in \{1,\dots,N\}$
-		\State Sample a path $\sigma_i$ for pursuer $i$ using web sampling
-		\color{black}
-		
-		\State Compute new visibility region $\mathcal{V}_{new} \gets \mathcal{V} \cup \mathcal{V}(\sigma)$
-		
-		\If{$\mathcal{V}_{new}$ adds new area}
-		\State Add new node $q'$ to $\mathcal{\tilde{S}}$ with coverage $\mathcal{V}_{new}$
-		\State Add edge $(q, q')$ to $\mathcal{E}$
-		\State Insert $q'$ into $\mathcal{Q}$ (prioritized by coverage gain)
-		\EndIf
-		\EndWhile
-		
-		\State Extract solution subtree $\mathcal{T} \subseteq \mathcal{G}$ achieving full coverage
-		
-		\State \textbf{// Refinement Phase}
-		\For{each path segment in $\mathcal{T}$}
-		\State Locally resample and shortcut paths to reduce cost
-		\State Preserve visibility constraints during refinement
-		\EndFor
-		\color{black}
-		
-		\State \Return joint pursuer trajectories from $\mathcal{T}$
-	\end{algorithmic}
-\end{algorithm}
-
-
 \subsection{ViPER}
 
 ViPER is the learning-based algorithm included in our comparison.
