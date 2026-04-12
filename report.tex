@@ -126,7 +126,7 @@ This leads to many discretizations, sampling-based methods and learning approach
 \subsection{Shadow Events}
 Central to some algorithms in the literature is the concept of shadow events. 
 This framework provides a conceptual analog of pursuer movement that neatly fits into the N-Pursuer Visibility-Based Pursuit-Evasion game.
-Briefly, shadow events describe a framework for propagating labels assigned to particular unseen regions in a space based on a hierarchy of dominance under common interactons.
+Briefly, shadow events describe a framework for propagating labels assigned to particular unseen regions in a space based on a hierarchy of dominance under common interactions.
 
 Introduced in \cite{guibas1999visibility}, shadow events are primarily used to keep track of contaminated areas in the game's space of interest.
 As such, the labels of concern are whether an area is clear or contaminated.
@@ -134,7 +134,7 @@ Naturally, contaminated labels dominate cleared labels, as when a shadow we have
 
 Five main shadow events are introduced. These are
 \begin{itemize}
-	\item Appear - A shadow is instantiated when a prviously seen part of the environment becomes hidden.
+	\item Appear - A shadow is instantiated when a previously seen part of the environment becomes hidden.
 	\item Disappear - Existing shadows vanish when the come into the visibility cone of the pursuers.
 	\item Merge - Two or more existing shadows join together and adopt the same shadow label when a shadow appears linking them together.
 	\item Split - One shadow can be divided into multiple shadows when the pursuers visibility cones cause them to be non-path connected in 4-neighbour space.
@@ -182,15 +182,15 @@ In the query phase, given start and goal configurations $q_{\mathrm{start}}, q_{
 A graph search algorithm is then used to find a path in $G$.
 
 PRM is probabilistically complete: if a path exists in $\mathcal{C}_{\mathrm{free}}$, the probability that PRM finds a solution approaches $1$ as $n \to \infty$.
-Under appropriate connection strategies (e.g., $r_n \sim (\log n / n)^{1/d}$ in $d$ dimensions), PRM variants can achieve asymptotic optimality, and have been applied to numerous multi-robot problems~\cite{CLARK2005244}.
+Under appropriate connection strategies, PRM variants can achieve asymptotic optimality, and have been applied to numerous multi-robot problems~\cite{CLARK2005244}.
 
 
 
 \subsection{Graph-Based Motion Planning}
 
-Graph-based motion planning transforms the continuous $C$-space into a discrete topological representation $G = (V,E)$. In this formulation, vertices $v \in V$ represent discrete configurations in $C_{free}$, while edges $e \in E$ represent feasible transitions between them. The framework typically follows a three step pipeline: a discretization phase, followed by edge weight aChosetssignment based on cost metrics, and a graph search algorithm to extract a least-cost path.
+Graph-based motion planning transforms the continuous $C$-space into a discrete topological representation $G = (V,E)$. In this formulation, vertices $v \in V$ represent discrete configurations in $C_{free}$, while edges $e \in E$ represent feasible transitions between them. The framework typically follows a three step pipeline: a discretization phase, followed by edge weight assignment based on cost metrics, and a graph search algorithm to extract a least-cost path.
 
-The literature offers diverse approaches. Discretization may utlize exact cell decompositions (i.e. visibility graphs, Morse cells, or convex partitions \cite{choset2005principles}), or approximate grid-based decompositions. While classic methods like Breadth-First-Search (BFS) or Depth-First-Search (DFS) provide basic connectivity, modern motion planning heavily leverages informed search heurstics (namely A*) to manage the computational complexity inherent in high-dimensional state spaces.
+The literature offers diverse approaches. Discretization may utilize exact cell decompositions (i.e. visibility graphs, Morse cells, or convex partitions \cite{choset2005principles}), or approximate grid-based decompositions. While classic methods like Breadth-First-Search (BFS) or Depth-First-Search (DFS) provide basic connectivity, modern motion planning heavily leverages informed search heuristics (namely A*) to manage the computational complexity inherent in high-dimensional state spaces.
 
 \subsection{Multi-Agent Reinforcement Learning}
 
@@ -229,9 +229,7 @@ Unfortunately, these algorithms tend to struggle in joint configuration spaces a
 Due to the high dimensional nature of the joint configuration space, sampling-based approaches to the problem are fairly common.
 In one such method, Stifler and O'Kane propose a PRM-style planner that utilizes an internal model of the evolution of visible spaces as an additional validity check on expanding nodes during planning~\cite{stiffler2014sampling}.
 In a follow up work, the algorithm performance is improved through the use of domain-specific pose sampling, and a solution-refinement method~\cite{vis_roadmap}.
-Several additional extensions to this method have been considered, including the improvement robustness to individual robot failures~\cite{stiffler2020planning}.
-
-
+Several additional extensions to this method have been considered, including the improvement robustness to individual robot failures~\cite{stiffler2020planning}, and the addition of probabilistic completeness guarantees~\cite{stiffler2024asymptotically} and the consideration of more complex sensing models~\cite{stiffler2016pursuit}.
 
 
 \subsection{Graph-based Approaches}
@@ -261,7 +259,7 @@ ViPER also uses an attentive critic, similar in motivation to MAAC~\cite{iqbal20
 Its main limitation is that it does not certify clearing in the same way as complete planners; success must be measured by the simulator or an external contamination tracker.
 
 
-\section{Algorithm Implementation}\label{sec:algo}
+\section{ Implementation}\label{sec:algo}
 % What did you implement, and what were the results you obtained? What information is presented in the tables, figures, and diagrams you have included? This is the 'meat' of the report - when writing this section, step back and consider how best to convey your results to someone who is new to the topic.
 As we are interested in comparing recent developments in the field, we sampled and implemented 4 algorithms, one from each problem formulation.
 These are then compared on common metrics using a series of different maps.
@@ -288,10 +286,7 @@ Upon this condition being met, we may then reconstruct a solution from the inter
 The authors utilize three constraints to filter which edges should be added to the graph.
 The first is mutual visibility - a line of sight, or obstacle free straight line path, must exist between each pursuers configuration at vertex $i$ and its corresponding configuration at vertex $i+1$.
 The second is edge-length, with a maximum distance being set between two configurations.
-Finally, a minimum cycle length is set to ensure that computation is not wasted on low-information configuration changes.
-
-Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space.
-With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
+Finally, a minimum cycle length is set to ensure that computation is not wasted on low-information configuration changes. Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space.
 
 
 \subsection{Visibility Roadmaps}
