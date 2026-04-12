@@ -44,12 +44,12 @@
 % give a high level overview of your project - is it a technique, or the application of a specific algorithm, etc.? Who (worldwide) the major players in the area? Why is the topic interesting?
 Adversarial games in continuous spaces have long been studied under the field of differential game theory, developed by Rufus Isaac's in the 1950s~\cite{}.
 These games, contrary to their discrete classical game theoretical counterpoints, have the evolution of the game evolve according to differential equations.
-Differential games have been used in several application spaces, such as perimeter defense, risk-averse landing path plannign for airplanes, and ... \cite{}.
+Differential games have been used in several application spaces, such as perimeter defense, risk-averse landing path planning for airplanes, and ... \cite{}.
 In robotics, differential games find many applications in military ...
 
 Recently, more interest has been taken in multi-agent differential games~\cite{}. 
 These, of course, model more realistic scenarios and engagements. 
-However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of somputing Hamilton-Jacobi-Isaacs solutions.~\cite{}
+However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of computing Hamilton-Jacobi-Isaacs solutions.~\cite{}
 
 One such multi-agent game is the multi-pursuer vision-based pursuit evasion game.
  In this formulation, the evader, or evaders, are often treated as abstract entities that can move at arbitrary speeds. 
@@ -91,7 +91,7 @@ The pursuer seeks a control strategy $u_p(\cdot)$ that guarantees capture in fin
 Strategies may be open-loop or feedback, and optimal strategies are often characterized using tools from differential game theory, such as Hamilton--Jacobi--Isaacs (HJI) equations.
 In higher dimensional spaces, ore even with more complex kinematics, solutions to these equations are often intractable to compute.
 
-Pursuit--evasion problems are closely related to motion planning under uncertainty and adversarial conditions. 
+Pursuit-evasion problems are closely related to motion planning under uncertainty and adversarial conditions. 
 Sampling-based planners are often adapted to compute strategies or reachable sets in high-dimensional spaces, particularly when the evader's behavior is only partially known~\cite{}.
 
 \subsection{The N-Pursuer Visibility-Based Pursuit-Evasion Game}
@@ -131,7 +131,7 @@ Determining the minimum $N$ required for guaranteed detection is generally NP-ha
 This leads to many discretizations, sampling-based methods and learning approaches to the problem.
 
 \subsection{Shadow Events}
-Central to some algorithms in the literature is the concept of shadow events~\cite{bibid}. 
+Central to some algorithms in the literature is the concept of shadow events. 
 This framework provides a conceptual analog of pursuer movement that neatly fits into the N-Pursuer Visibility-Based Pursuit-Evasion game.
 Briefly, shadow events describe a framework for propagating labels assigned to particular unseen regions in a space based on a hierarchy of dominance under common interactons.
 
@@ -181,7 +181,7 @@ RRT algorithms build upon the random sampling of the configuration space around 
 
 PRM instead builds upon the idea of ...
 
-Most sampling-based motion planning algorithms struggle in higher-dimensional spaces, as a result of the search space growing exponentially in the number of dimensions~\cite{bibid}. 
+Most sampling-based motion planning algorithms struggle in higher-dimensional spaces, as a result of the search space growing exponentially in the number of dimensions~\cite{CLARK2005244}. 
 Of course, multi-robot planning exhibits such a property, with the number of dimensions increasing at a rate of $N|s_i|$.
 As a result, several extensions to RRT and PRM have been proposed to improve their performance in joint configuration spaces.
 
@@ -306,7 +306,7 @@ With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
 
 \subsection{Visibility Roadmaps}
-In \cite{}, an extension to SG-PEG is proposed. 
+In \cite{vis_roadmap}, an extension to SG-PEG is proposed. 
 Several key innovations are detailed, including an improved visibility-based sampling distribution, a solution refinement method, and a process for iteratively increasing the number of pursuers until a solution can be provided.
 Due to the references to visibility roadmaps in the paper title, we refer to this variant as visibility-roadmap SG-PEG~(VR-SG-PEG).
 We note that, as we are interested in evaluating each detailed algorithm in sterile and identical conditions, we omit the process of increasing the number of pursuers from our method, instead keeping this fixed based on a given configuration.
