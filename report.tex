@@ -441,57 +441,65 @@ In our implementation, ViPER is treated as an online planner: we construct the v
 
 \section{Comparison Methodology}\label{sec:comp}
 
-For comparison of the methods described in section \ref{sec:algo}, we use a few generic metrics: time to plan, time to execute, maximum percentage of the environment cleared, success rate, and the total path lengths. 
+We evaluate the methods described in Section~\ref{sec:algo} using a unified set of metrics: planning time, execution time, total path length, maximum environment coverage, and success rate. P
+ath length is computed as the cumulative distance traveled by all pursuers and is measured online during execution.
+Experiments are conducted on four maps with varying structural complexity: \texttt{simple\_obs}, \texttt{ring}, \texttt{H\_map}, and \texttt{convex\_obstacles}. 
+These environments range in size from $40\times40$\,m to $64\times64$\,m and contain both convex and non-convex obstacles. 
+The \texttt{simple\_obs} map includes several polygonal obstacles and a large circular obstacle, which complicates decomposition into convex regions for methods which incroperate this into planning. 
+The \texttt{ring} map consists of two enclosing walls with narrow gaps, requiring coordinated clearing to avoid recontamination. 
+The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared edliberatly before advancing. 
+Finally, \texttt{convex\_obstacles} features multiple convex obstacles and presents the greatest challenge for recontamiation.
 
-We use five distinct maps, each with unique features and challenges with varying complexity. 
+For each map, we generate 30 sets of random initial pursuer configurations. These spawn configurations are held constant across all methods to ensure fair comparison. 
+In addition, we evaluate scalability by varying the number of pursuers on the \texttt{simple\_obs} map.
 
-We generate 30 sets of random spawn points for each map. These random spawn points are consistent for all pursuer strategies.
+Success is determined based on shadow clearance described in Subsection~\ref{subsec:shadow_events}. A trial is terminated early and marked successful if 100\% coverage is achieved. 
+Trials that reach at least 99\% maximum coverage are also counted as successful post hoc.
 
-
-We also test on a single map (single\_obs), the change in performance as the number of pursuers increases.
-
-To measure success, we utilize the shadow labels described in Subsection \ref{subsec:shadow_events}. If 100$\%$ coverage is achieved at any point during execution, the trial is considered a success.
-
-
-
-
-path length is calculated based on the sum of the distances traveled by each pursuer, and is calculated live during execution of the plan.
-
-We set a 3 minute time out for planning and execution and a 1 minute time out for a single planning step. If the planning timeout is reached, a partial plan (if available) is executed during the remaining time of the main time limit. 
-
-This planning timeout is specifically for the algorithms which plan in one shot like the SG-PEG and VR-SG-PEG. 
-
-
-
-
-The evaluation environment we use primarliy consits of various convex and non-convex obstacles in environment of varying sizes, with varying numbers of pursuers.
-
-The four maps tested are \texttt{simple\_obs}, \texttt{ring}, \texttt{H\_map}, \texttt{rooms}, and \texttt{convex\_obstacles}.
-
-To conduct a fair comparison of the methods described above, we utilize a common set of metrics and a common set of maps. The metrics include the 
-
+To ensure consistent runtime constraints, we impose a global timeout of 3 minutes per trial, encompassing both planning and execution. Additionally, a 1-minute timeout is enforced for individual planning steps. 
+If a planning timeout is reached, any available partial plan is executed for the remainder of the trial. This constraint primarily affects single-shot planners such as SG-PEG and VR-SG-PEG.
 
 \section{Numerical Results}\label{sec:results}
 
-The results of our comparison are summarized in Table \ref{tab:map_comparison} and Table \ref{tab:variable_pursuers}. 
-Table \ref{tab:map_comparison} compares the performance of the four algorithms across the five maps with a fixed number of pursuers, while Table \ref{tab:variable_pursuers} shows how the performance of each algorithm changes as the number of pursuers increases on a single map.
+% On the simpler maps, simple observation and ring, every algorithm is able to reliably solve the problem in a reasonable amount of time.
+% This comes at no real surprise, as the ...
+% We observe that, in terms of ...
+
+% These results indicate several interesting outcomes. 
+% First, it appears that on certain maps, namely the H-map, no strategy is able to reliably solve the problem in the allotted time. 
+% This is of interest as this map is also defined by the largest bounding box.
+% A larger area leads to more frequent sampling and computations related to checking the status of shadowed regions, thus decreasing the algorithms' efficiencies.
+% This is especially interesting when considering the visibility-roadmap method, from which the map itself is recreated.
+% This indicates the frailty of this particular approach to minor variations in problem setting.
+
+% On the map we judged to be the most difficult \textit{a priori} due to the number of obstacles and complicated regions, all algorithms perform quite well.
+% This further validates the claim that the size of the map is one of the more salient variables that affect performance of all considered approaches.
 
 
-On the simpler maps, simple observation and ring, every algorithm is able to reliably solve the problem in a reasonable amount of time.
-This comes at no real surprise, as the ...
-We observe that, in terms of ...
+The results of our comparison are summarized in Table~\ref{tab:map_comparison} and Table~\ref{tab:variable_pursuers}. 
+Table~\ref{tab:map_comparison} compares the performance of the four algorithms across the different maps with a fixed number of pursuers, while Table~\ref{tab:variable_pursuers} illustrates how performance varies as the number of pursuers increases on \texttt{simple\_obs}.
 
-These results indicate several interesting outcomes. 
-First, it appears that on certain maps, namely the H-map, no strategy is able to reliably solve the problem in the allotted time. 
-This is of interest as this map is also defined by the largest bounding box.
-A larger area leads to more frequent sampling and computations related to checking the status of shadowed regions, thus decreasing the algorithms' efficiencies.
-This is especially interesting when considering the visibility-roadmap method, from which the map itself is recreated.
-This indicates the frailty of this particular approach to minor variations in problem setting.
+On the simpler environments, \texttt{simple\_obs} and \texttt{ring}, every algorithm is generally capable of achieving high coverage, although with notable differences in reliability and efficiency.
+In particular, SG-PEG and VR-SG-PEG exhibit reduced success rates on \texttt{ring} (53.33\% and 83.33\%, respectively), suggesting sensitivity to recontamination effects and the need for coordination in constrained passages.
+In contrast, ViPER consistently achieves 100\% success on these maps while maintaining low execution times and shorter path lengths, indicating more efficient coverage behavior.
 
-On the map we judged to be the most difficult \textit{a priori} due to the number of obstacles and complicated regions, all algorithms perform quite well.
-This further validates the claim that the size of the map is one of the more salient variables that affect performance of all considered approaches.
+Across all maps, a clear trade-off emerges between planning and execution time. Graph-Clear incurs negligible planning cost but significantly higher execution times, often several orders of magnitude larger than the other methods. 
+This is particularly evident on \texttt{simple\_obs} and \texttt{H\_map}, where execution times exceed $10^5$ ms. 
+Conversely, SG-PEG and VR-SG-PEG invest more heavily in planning, resulting in shorter execution times but less consistent success rates in more complex environments.
 
+The \texttt{H\_map} presents a distinct challenge due to its structure and the presence of enclosed regions. 
+While all methods achieve high coverage, only Graph-Clear and ViPER maintain high success rates (96.77\% and 100\%, respectively), whereas SG-PEG and VR-SG-PEG struggle significantly. 
+This suggests that approaches relying on global coordination or reactive replanning are better suited to environments with strong recontamination risks.
 
+Interestingly, on \texttt{convex\_obstacles}, which was expected to be challenging due to its geometry, all methods achieve near-complete coverage, although success rates vary.
+Graph-Clear performs comparatively worse in success rate (77.42\%) despite high coverage, indicating that small residual uncleared regions can significantly impact final performance under the strict success criterion.
+ViPER again achieves perfect success, while maintaining relatively low execution and planning times.
+
+Table~\ref{tab:variable_pursuers} further shows that increasing the number of pursuers generally improves efficiency and reduces path length for all methods, although the magnitude of this improvement varies.
+ViPER demonstrates consistent performance across all team sizes, maintaining high success rates and relatively low planning and execution times. 
+In contrast, SG-PEG and VR-SG-PEG exhibit greater variability, particularly at lower numbers of pursuers, where planning time and success rates fluctuate significantly.
+
+Overall, the results suggest that map size and structure play a more significant role than obstacle count alone, and that methods capable of handling recontamination and coordination implicitly (such as ViPER) provide more robust performance across a wide range of environments.
 
 \begin{table*}[t]
 	\centering
@@ -504,7 +512,7 @@ This further validates the claim that the size of the map is one of the more sal
 		\toprule
 		
 		\multirow{2}{*}{\textbf{Map}} & \multirow{2}{*}{\textbf{Algorithm}} 
-		& \multicolumn{2}{c}{\textbf{Time (ms)}} 
+		& \multicolumn{2}{c}{\textbf{Time (s)}} 
 		& \multirow{2}{*}{\textbf{Path Length (m)}} 
 		& \multirow{2}{*}{\textbf{Max Coverage (\%)}} 
 		& \multirow{2}{*}{\textbf{Success Rate (\%)}} \\
@@ -516,31 +524,31 @@ This further validates the claim that the size of the map is one of the more sal
 		
 		% -------- simple_obs --------
 		\multirow{4}{*}{\shortstack[l]{\textbf{\texttt{simple\_obs}}\\ \footnotesize (40$\times$40 m)}}
-		& \textbf{SG-PEG} 	    & 1348.9 $\pm$ 797.9 & 7.8 $\pm$ 4.8 & 145.7 $\pm$ 92.7 & 100.00 $\pm$ 0.00 & 100 \\
-		& \textbf{VR-SG-PEG} 	& 4749.3 $\pm$ 6413.3 & 4.6 $\pm$ 2.7 & 82.4 $\pm$ 52.2 & 100.00 $\pm$ 0.01 & 100 \\
-		& \textbf{Graph-Clear} 	& 22.0 $\pm$ 7.6 & 146422.1 $\pm$ 50413.7 & 99.1 $\pm$ 35.1 & 99.85 $\pm$ 0.26 & 100 \\
-		& \textbf{ViPER}        & 2143.9 $\pm$ 1216.7 & 6.4 $\pm$ 3.0 & 73.1 $\pm$ 33.8 & 99.85 $\pm$ 0.15 & 100 \\
+		& \textbf{SG-PEG} 	    & \textbf{1.35 $\pm$ 0.80} &   \textbf{0.01 $\pm$ 0.01} & 145.7 $\pm$ 92.7 & \textbf{100.00 $\pm$ 0.00} & \textbf{100.00} \\
+		& \textbf{VR-SG-PEG} 	& 4.75 $\pm$ 6.41 &   0.01 $\pm$ 0.00 & 82.4 $\pm$ 52.2 & \textbf{100.00 $\pm$ 0.01} & \textbf{100.00} \\
+		& \textbf{Graph-Clear} 	& 0.02 $\pm$ 0.01 & 146.42 $\pm$ 50.41 & 99.1 $\pm$ 35.1 & 99.85 $\pm$ 0.26 & \textbf{100.00} \\
+		& \textbf{ViPER}        & 2.14 $\pm$ 1.22 &   0.01 $\pm$ 0.00 & \textbf{73.1 $\pm$ 33.8} & 99.85 $\pm$ 0.15 & \textbf{100.00} \\
 
 		\midrule
 		
 		% -------- ring --------
 		\multirow{4}{*}{\shortstack[l]{\textbf{\texttt{ring}}\\ \footnotesize (64$\times$64 m)}}
-		& \textbf{SG-PEG} 	    & 28842.2 $\pm$ 16831.2 & 6.4 $\pm$ 10.8 & 87.9 $\pm$ 148.7 & 92.63 $\pm$ 10.82 & 53.33 \\
-		& \textbf{VR-SG-PEG} 	 & 49319.7 $\pm$ 61074.2 & 8.4 $\pm$ 7.7 & 104.4 $\pm$ 93.9 & 96.69 $\pm$ 8.67 & 83.33 \\
-		& \textbf{Graph-Clear} & 16.4 $\pm$ 17.2 & 27446.4 $\pm$ 20539.6 & 218.5 $\pm$ 132.2 & 99.62 $\pm$ 0.00 & 90.32 \\
-		& \textbf{ViPER}       & 6557.7 $\pm$ 4580.2 & 8.1 $\pm$ 6.0 & 75.7 $\pm$ 54.3 & 100.00 $\pm$ 0.00 & 100 \\
+		& \textbf{SG-PEG} 	    & 28.84 $\pm$ 16.83 & 0.01 $\pm$ 0.01 & 87.9 $\pm$ 148.7 & 92.63 $\pm$ 10.82 & 53.33 \\
+		& \textbf{VR-SG-PEG} 	 & 49.32 $\pm$ 61.07 & 0.01 $\pm$ 0.01 & 104.4 $\pm$ 93.9 & 96.69 $\pm$ 8.67 & 83.33 \\
+		& \textbf{Graph-Clear} & 0.02 $\pm$ 0.02 & 27.45 $\pm$ 20.54 & 218.5 $\pm$ 132.2 & 99.62 $\pm$ 1.02 & 90.32 \\
+		& \textbf{ViPER}       & \textbf{6.56 $\pm$ 4.58} & \textbf{0.01 $\pm$ 0.01} & \textbf{75.7 $\pm$ 54.3} & \textbf{100.00 $\pm$ 0.00} & \textbf{100.00} \\
 		
 		\midrule
 		
 		% -------- H_map --------
 		\multirow{4}{*}{\shortstack[l]{\textbf{\texttt{H\_map}}\\ \footnotesize (40$\times$40 m)}}
-		& \textbf{SG-PEG}       & 139637.0 $\pm$ 58882.4 & 8.9 $\pm$ 15.8 & 115.2 $\pm$ 210.1 & 75.04 $\pm$ 15.93 & 23.33 \\
-		& \textbf{VR-SG-PEG}    & 172102.5 $\pm$ 33658.7 & 1.5 $\pm$ 5.2 & 15.4 $\pm$ 64.1 & 69.77 $\pm$ 11.45 & 6.06 \\
-		& \textbf{Graph-Clear}  & 32.7 $\pm$ 30.5 & 67706.0 $\pm$ 54131.0 & 204.6 $\pm$ 143.2 & 99.00 $\pm$ 1.77 & 80.00 \\
-		& \textbf{ViPER}         & 3215.7 $\pm$ 1304.9 & 19.6 $\pm$ 7.8 & 201.1 $\pm$ 79.2 & 100.00 $\pm$ 0.00 & 100 \\
+		& \textbf{SG-PEG}       & 139.64 $\pm$ 58.88 & 0.01 $\pm$ 0.02 & 115.2 $\pm$ 210.1 & 75.04 $\pm$ 15.93 & 23.33 \\
+		& \textbf{VR-SG-PEG}    & 172.10 $\pm$ 33.66 & 0.00 $\pm$ 0.01 & \textbf{15.4 $\pm$ 64.1} & 69.77 $\pm$ 11.45 & 6.06 \\
+		& \textbf{Graph-Clear}  & 0.05 $\pm$ 0.01 & 100.35 $\pm$ 17.46 & 393.9 $\pm$ 76.8 & \textbf{100.00 $\pm$ 0.00} & 96.77 \\
+		& \textbf{ViPER}         & \textbf{3.22 $\pm$ 1.30} & \textbf{0.02 $\pm$ 0.01} & 201.1 $\pm$ 79.2 & \textbf{100.00 $\pm$ 0.00} & \textbf{100.00} \\
 
 		\midrule
-		
+
 		% % -------- rooms --------
 		% \multirow{4}{*}{\textbf{\texttt{rooms}}}
 		% & \textbf{SG-PEG}        & -- & -- & -- & -- & -- \\
@@ -552,10 +560,10 @@ This further validates the claim that the size of the map is one of the more sal
 		
 		% -------- convex_obstacles --------
 		\multirow{4}{*}{\shortstack[l]{\textbf{\texttt{convex\_obstacles}}\\ \footnotesize (40$\times$40 m)}}
-		& \textbf{SG-PEG}        & 12145.8 $\pm$ 12852.2 & 20.4 $\pm$ 12.1 & 267.9 $\pm$ 164.4 & 99.99 $\pm$ 0.07 & 100 \\
-		& \textbf{VR-SG-PEG}     & 20460.1 $\pm$ 39875.6 & 15.0 $\pm$ 10.3 & 170.7 $\pm$ 100.3 & 98.78 $\pm$ 4.17 & 90.32 \\
-		& \textbf{Graph-Clear}   & 36.4 $\pm$ 20.3 & 63875.3 $\pm$ 26759.2 & 231.9 $\pm$ 57.9 & 99.00 $\pm$ 0.00 & 77.42 \\
-		& \textbf{ViPER}         & 4504.8 $\pm$ 2191.3 & 9.7 $\pm$ 3.9 & 99.1 $\pm$ 39.0 & 99.99 $\pm$ 0.04 & 100 \\
+		& \textbf{SG-PEG}        & 12.15 $\pm$ 12.85 & 0.02 $\pm$ 0.01 & 267.9 $\pm$ 164.4 & \textbf{99.99 $\pm$ 0.07} & \textbf{100.00} \\
+		& \textbf{VR-SG-PEG}     & 20.46 $\pm$ 39.88 & 0.02 $\pm$ 0.01 & 170.7 $\pm$ 100.3 & 98.78 $\pm$ 4.17 & 90.32 \\
+		& \textbf{Graph-Clear}   & 0.04 $\pm$ 0.02 & 63.88 $\pm$ 26.76 & 231.9 $\pm$ 57.9 & 99.00 $\pm$ 1.75 & 77.42 \\
+		& \textbf{ViPER}         & \textbf{4.50 $\pm$ 2.19} & \textbf{0.01 $\pm$ 0.00} & \textbf{99.1 $\pm$ 39.0} & \textbf{99.99 $\pm$ 0.04} & \textbf{100.00} \\
 
 		\bottomrule
 	\end{tabular}
@@ -573,7 +581,7 @@ This further validates the claim that the size of the map is one of the more sal
 		\toprule
 		
 		\multirow{2}{*}{\textbf{\# Robots}} & \multirow{2}{*}{\textbf{Algorithm}} 
-		& \multicolumn{2}{c}{\textbf{Time (ms)}} 
+		& \multicolumn{2}{c}{\textbf{Time (s)}} 
 		& \multirow{2}{*}{\textbf{Path Length (m)}} 
 		& \multirow{2}{*}{\textbf{Max Coverage (\%)}} 
 		& \multirow{2}{*}{\textbf{Success Rate (\%)}} \\
@@ -585,47 +593,47 @@ This further validates the claim that the size of the map is one of the more sal
 		
 		% -------- k = 2 --------
 		\multirow{4}{*}{\textbf{2}}
-		& \textbf{SG-PEG}        & 38887.6 $\pm$ 41315.6 & 9.7 $\pm$ 28.9 & 75.7 $\pm$ 35.6 & 100.00 $\pm$ 0.00 & 100.00 \\
-		& \textbf{VR-SG-PEG}     & 50133.9 $\pm$ 55389.8 & 3.4 $\pm$ 1.3 & 57.1 $\pm$ 21.6 & 99.87 $\pm$ 0.48 & 96.67 \\
-		& \textbf{Graph-Clear}   & 25.0 $\pm$ 5.3 & 173807.6 $\pm$ 18873.1 & 87.0 $\pm$ 20.1 & 99.46 $\pm$ 0.37 & 100.00 \\
-		& \textbf{ViPER}         & 55882.71 $\pm$ 79493.84 & 56.254 $\pm$ 83.54 & 1025.11 $\pm$ 1616.88 & 99.67 $\pm$ 0.26 & 100.00 \\
-		
+		& \textbf{SG-PEG}        & \textbf{38.89 $\pm$ 41.32} & \textbf{0.01 $\pm$ 0.03} & 75.7 $\pm$ 35.6 & \textbf{100.00 $\pm$ 0.00} & \textbf{100.00} \\
+		& \textbf{VR-SG-PEG}     & 50.13 $\pm$ 55.39 & 0.00 $\pm$ 0.00 & \textbf{57.1 $\pm$ 21.6} & 99.87 $\pm$ 0.48 & 96.67 \\
+		& \textbf{Graph-Clear}   & 0.03 $\pm$ 0.01 & 173.81 $\pm$ 18.87 & 87.0 $\pm$ 20.1 & 99.46 $\pm$ 0.37 & \textbf{100.00} \\
+		& \textbf{ViPER}         & 55.88 $\pm$ 79.49 & 0.06 $\pm$ 0.08 & 1025.11 $\pm$ 1616.88 & 99.67 $\pm$ 0.26 & \textbf{100.00} \\
+
 		\midrule
 		
-		% -------- k = 3 --------     plan exec len cov succ
+		% -------- k = 3 --------
 		\multirow{4}{*}{\textbf{3}}
-		& \textbf{SG-PEG}        & 1313.6 $\pm$ 930.2 & 7.3 $\pm$ 3.8 & 131.1 $\pm$ 69.7 & 100.00 $\pm$ 0.01 & 100.00 \\
-		& \textbf{VR-SG-PEG}     & 18131.2 $\pm$ 28283.0 & 4.8 $\pm$ 1.9 & 79.8 $\pm$ 31.6 & 100.00 $\pm$ 0.01 & 100.00 \\
-		& \textbf{Graph-Clear}   & 22.4 $\pm$ 5.0 & 167370.1 $\pm$ 28575.8 & 101.2 $\pm$ 21.1 & 99.78 $\pm$ 0.19 & 100.00 \\
-		& \textbf{ViPER}         & 3378.07 $\pm$ 2439.92 & 7.69 $\pm$ 3.89 & 83.07 $\pm$ 42.57 & 99.81 $\pm$ 0.25 & 100.00 \\
-		
+		& \textbf{SG-PEG}        & \textbf{1.31 $\pm$ 0.93} & \textbf{0.01 $\pm$ 0.00} & 131.1 $\pm$ 69.7 & \textbf{100.00 $\pm$ 0.01} & \textbf{100.00} \\
+		& \textbf{VR-SG-PEG}     & 18.13 $\pm$ 28.28 & 0.00 $\pm$ 0.00 & \textbf{79.8 $\pm$ 31.6} & \textbf{100.00 $\pm$ 0.01} & \textbf{100.00} \\
+		& \textbf{Graph-Clear}   & 0.02 $\pm$ 0.01 & 167.37 $\pm$ 28.58 & 101.2 $\pm$ 21.1 & 99.78 $\pm$ 0.19 & \textbf{100.00} \\
+		& \textbf{ViPER}         & 3.38 $\pm$ 2.44 & 0.01 $\pm$ 0.00 & 83.07 $\pm$ 42.57 & 99.81 $\pm$ 0.25 & \textbf{100.00} \\
+
 		\midrule
 		
 		% -------- k = 4 --------
 		\multirow{4}{*}{\textbf{4}}
-		& \textbf{SG-PEG}        & 1348.9 $\pm$ 797.9 & 7.8 $\pm$ 4.8 & 145.7 $\pm$ 92.7 & 100.00 $\pm$ 0.00 & 100.00 \\
-		& \textbf{VR-SG-PEG}     & 4749.3 $\pm$ 6413.3 & 4.6 $\pm$ 2.7 & 82.4 $\pm$ 52.2 & 100.00 $\pm$ 0.01 & 100.00 \\
-		& \textbf{Graph-Clear}   & 22.0 $\pm$ 7.6 & 146422.1 $\pm$ 50413.7 & 99.1 $\pm$ 35.1 & 99.85 $\pm$ 0.26 & 100.00 \\
-		& \textbf{ViPER}        & 2143.9 $\pm$ 1216.7 & 6.4 $\pm$ 3.0 & 73.1 $\pm$ 33.8 & 99.85 $\pm$ 0.15 & 100 \\
+		& \textbf{SG-PEG}        & \textbf{1.35 $\pm$ 0.80} & \textbf{0.01 $\pm$ 0.00} & 145.7 $\pm$ 92.7 & \textbf{100.00 $\pm$ 0.00} & \textbf{100.00} \\
+		& \textbf{VR-SG-PEG}     & 4.75 $\pm$ 6.41 & 0.00 $\pm$ 0.00 & 82.4 $\pm$ 52.2 & \textbf{100.00 $\pm$ 0.01} & \textbf{100.00} \\
+		& \textbf{Graph-Clear}   & 0.02 $\pm$ 0.01 & 146.42 $\pm$ 50.41 & 99.1 $\pm$ 35.1 & 99.85 $\pm$ 0.26 & \textbf{100.00} \\
+		& \textbf{ViPER}        & 2.14 $\pm$ 1.22 & 0.01 $\pm$ 0.00 & \textbf{73.1 $\pm$ 33.8} & 99.85 $\pm$ 0.15 & \textbf{100.00} \\
 
 		\midrule
 		
 		% -------- k = 5 --------
 		\multirow{4}{*}{\textbf{5}}
-		& \textbf{SG-PEG}        & 3858.4 $\pm$ 7352.1 & 6.4 $\pm$ 4.2 & 119.2 $\pm$ 77.5 & 99.99 $\pm$ 0.07 & 100.00 \\
-		& \textbf{VR-SG-PEG}     & 3977.0 $\pm$ 9688.6 & 4.0 $\pm$ 3.8 & 63.1 $\pm$ 59.3 & 100.00 $\pm$ 0.00 & 100.00 \\
-		& \textbf{Graph-Clear}   & 22.8 $\pm$ 7.3 & 142677.3 $\pm$ 57456.9 & 102.7 $\pm$ 40.9 & 99.86 $\pm$ 0.25 & 100.00 \\
-		& \textbf{ViPER}         & 2125.8 $\pm$ 1107.7 & 5.7 $\pm$ 3.4 & 73.2 $\pm$ 42.3 & 99.90 $\pm$ 0.10 & 100.00 \\
-		
+		& \textbf{SG-PEG}        & 3.86 $\pm$ 7.35 & 0.01 $\pm$ 0.00 & 119.2 $\pm$ 77.5 & 99.99 $\pm$ 0.07 & \textbf{100.00} \\
+		& \textbf{VR-SG-PEG}     & 3.98 $\pm$ 9.69 & 0.00 $\pm$ 0.00 & \textbf{63.1 $\pm$ 59.3} & \textbf{100.00 $\pm$ 0.00} & \textbf{100.00}\\
+		& \textbf{Graph-Clear}   & 0.02 $\pm$ 0.01 & 142.68 $\pm$ 57.46 & 102.7 $\pm$ 40.9 & 99.86 $\pm$ 0.25 & \textbf{100.00}\\
+		& \textbf{ViPER}         & \textbf{2.13 $\pm$ 1.11} & \textbf{0.01 $\pm$ 0.00} & 73.2 $\pm$ 42.3 & 99.90 $\pm$ 0.10 & \textbf{100.00} \\
+
 		\midrule
 		
 		% -------- k = 6 --------
 		\multirow{4}{*}{\textbf{6}}
-		& \textbf{SG-PEG}        & 10205.1 $\pm$ 12559.2 & 4.9 $\pm$ 5.8 & 84.0 $\pm$ 102.3 & 99.97 $\pm$ 0.09 & 100.00 \\
-		& \textbf{VR-SG-PEG}     & 2718.9 $\pm$ 5522.1 & 4.1 $\pm$ 4.1 & 73.1 $\pm$ 69.6 & 100.00 $\pm$ 0.00 & 100.00 \\
-		& \textbf{Graph-Clear}   & 22.8 $\pm$ 7.3 & 142677.3 $\pm$ 57456.9 & 102.7 $\pm$ 40.9 & 99.86 $\pm$ 0.25 & 100.00 \\
-		& \textbf{ViPER}         & 2224.9 $\pm$ 1232.7 & 6.2 $\pm$ 2.9 & 73.1 $\pm$ 33.8 & 99.85 $\pm$ 0.15 & 100.00 \\
-		
+		& \textbf{SG-PEG}        & 10.21 $\pm$ 12.56 & 0.00 $\pm$ 0.01 & 84.0 $\pm$ 102.3 & 99.97 $\pm$ 0.09 & \textbf{100.00} \\
+		& \textbf{VR-SG-PEG}     & 2.72 $\pm$ 5.52 & 0.00 $\pm$ 0.00 & 73.1 $\pm$ 69.6 & \textbf{100.00 $\pm$ 0.00} & \textbf{100.00} \\
+		& \textbf{Graph-Clear}   & 0.02 $\pm$ 0.01 & 142.68 $\pm$ 57.46 & 102.7 $\pm$ 40.9 & 99.86 $\pm$ 0.25 & \textbf{100.00}\\
+		& \textbf{ViPER} 		 & \textbf{1.96 $\pm$ 1.36} & \textbf{0.00 $\pm$ 0.00} & \textbf{65.0 $\pm$ 43.1}& 99.90 $\pm$ 0.11 &  \textbf{100.00} \\
+
 		\bottomrule
 	\end{tabular}
 \end{table*}
