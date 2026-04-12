@@ -6,15 +6,11 @@
 \usepackage{graphicx}
 \usepackage{textcomp}
 % \usepackage{cite}
-\usepackage{biblatex}
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{multirow}
-\addbibresource{references.bib}
-\def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
-    T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
-
+\usepackage{cite}
     
 \begin{document}
 
@@ -515,7 +511,8 @@ In our implementation, ViPER is treated as an online planner: we construct the v
 \section{Open Problems}\label{sec:open_prob}
 % Based upon your work, what are some (specific) open problems in the topic area? Are there any major obstacles to progress (e.g. insufficient compute, unsolved theoretical issues)? Can you suggest possible ways to move forward?
 
-\printbibliography
+\bibliographystyle{IEEEtran}
+\bibliography{references}
 
 
 \end{document}
