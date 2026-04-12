@@ -2,6 +2,7 @@
 \IEEEoverridecommandlockouts
 % The preceding line is only needed to identify funding in the first footnote. If that is unneeded, please comment it out.
 \usepackage{amsmath,amssymb,amsfonts}
+\usepackage{algorithm}
 \usepackage{algpseudocode}
 \usepackage{graphicx}
 \usepackage{textcomp}
@@ -192,6 +193,14 @@ Under appropriate connection strategies, PRM variants can achieve asymptotic opt
 
 \subsection{Graph-Based Motion Planning}\label{sec:GBMP}
 
+
+\begin{figure}[ht] % Added [ht] to help with placement
+    \centering
+    \includegraphics[trim={0cm 5cm 0cm 0cm}, clip, width=\columnwidth, page=2]{figs/graph-based-figs.pdf}
+    \caption{Graph construcion from simple map: (1) polygonal environment, (2) convex decomposition, (3) topological representation.}
+    \label{fig:convex}
+\end{figure}
+
 Graph-based motion planning transforms the continuous $C$-space into a discrete topological representation $G = (V,E)$. In this formulation, vertices $v \in V$ represent discrete configurations in $\mathcal{C}$, while edges $\epsilon \in E$ represent feasible transitions between them. The framework typically follows a three step pipeline: a discretization phase, followed by edge weight assignment based on cost metrics, and a graph search algorithm to extract a least-cost path.
 
 The literature offers diverse approaches. Discretization may utilize exact cell decompositions (i.e. visibility graphs, Morse cells, or convex partitions \cite{choset2005principles}), or approximate grid-based decompositions. While classic methods like Breadth-First-Search (BFS) or Depth-First-Search (DFS) provide basic connectivity, modern motion planning heavily leverages informed search heuristics (namely A*) to manage the computational complexity inherent in high-dimensional state spaces.
@@ -371,6 +380,61 @@ The second innovation of note is the inclusion of a solution refinement step, de
 This acts as a post-processing step, filtering out the extraneous plan branches.
 Iteratively, two non-adjacent points from the solution $z_a, z_b$ are selected to check if a shortcut from $z_a$ to $z_b$ is still a valid solution.
 In addition to standard kinematic and collision avoidance constraints, the algorithm checks whether adjusting the solution in this manner clears the same set of shadows as the original solution, using the procedure laid out in Subsection \ref{subsec:peg}.
+
+
+\subsection{Pursuit Evasion on Trees}
+The Graph-Clear algorithm~\cite{kolling2009pursuit} provides a complete,
+polynomial-time clearing strategy on a surveillance graph. Agents have two actions, \textit{block} and \textit{sweep}, and work together to reduce graphs to spanning trees that can be searched in polynomial time. In the first stage of the algorithm, $C_{free}$ is decomposed into convex cells, per Fig. \ref{fig:convex}, with vertices representing the cells, and edges representing the boundaries between cells. An important property of convex cells is mutual visibility of all points within the set; an agent on the boundary of two cells can surveil both.
+
+The state space of a surveillance graph $G$ is defined to be the set
+\[
+\mathit{V}(G) = \left\{ \mathit{R}, \mathit{C} \right\}^n \times \left\{ \mathit{R}, \mathit{C}, \mathit{B} \right\}^m
+\]
+where $\mathit{R}$ represents \texttt{clear}, $\mathit{C}$ represents \texttt{contaminated}, and $\mathit{B}$ represents \texttt{blocked}, $n$ is the number of vertices, and $m$ the number of edges. A \textit{recontamination path} is defined in the topological space, denoting a path of edges and certices on which no edge is blocked.  
+
+\begin{figure}[t]
+	\centering
+	\includegraphics[width=\columnwidth, page=1]{figs/graph-based-figs.pdf}
+	\caption{Decomposition of a polygonal environment into convex regions.}
+	\label{fig:convex}
+\end{figure}
+
+The two actions that can be taken by agents are \textit{sweeping} and \textit{blocking}. Sweeping actions enter a convex cell, and mark the associated vertex clear in the surveillance graph. Blocking actions entail agents waiting on the boundary of two cells, breaking cycles in the topology such that a subgraph is a spanning tree for other agents to decontaminate. Agents work together to coordinate
+
+The algorithm processes the surveillance tree bottom-up, associating an optimal \textit{full-cut sequence} $\bar{S}_{v_x}(e)$ with each directed edge $e = [v_x, v_y]$, representing the cheapest contiguous progressive clearing order for the subtree rooted at $v_y$ once $v_x$ is already clear.
+The algorithm is shown below:
+\begin{algorithm}
+\caption{Graph-Clear: Optimal Contiguous Strategy on a Tree}
+\begin{algorithmic}[1]
+\Procedure{GraphClear}{$T = (V, E, w)$}
+    \State Initialize $\bar{S}_{v}(e) \gets \emptyset$ for every directed edge $e$
+    \State $Q \gets $ all leaves of $T$
+    \While{$Q$ is not empty}
+        \State $v_y \gets Q.\mathrm{dequeue}()$
+        \If{$v_y$ is a leaf}
+            \State $v_x \gets $ unique neighbor of $v_y$
+            \State $\bar{S}_{v_x}([v_x, v_y]) \gets \bigl\{\{v_x\},\,\{v_x, v_y\}\bigr\}$
+        \Else
+            \State Let $v_x$, $v_y$ be neighbours; $\bar{S}_{v_x}([v_x,v_y]) = \emptyset$
+            \State Let $v_1,\dots,v_k$ be the remaining neighbors
+            \State Merge $\bar{S}_{v_y}([v_y, v_i])$ for $i=1,\dots,k$, ordered by $\rho$ increasing, to form the optimal strategy $S_{v_y}$ on the subtree $T[v_y]$
+            \State Prepend $v_x$ to each cut of $S_{v_y}$ and filter,
+            \Statex \hspace{3.5em} yielding $\bar{S}_{v_x}([v_x, v_y])$
+            \If{exactly one neighbor of $v_x$ still has no computed sequence}
+                \State $Q.\mathrm{enqueue}(v_x)$
+            \ElsIf{all neighbors of $v_x$ have computed sequences}
+                \State $Q.\mathrm{enqueue}(v_x)$
+            \EndIf
+        \EndIf
+    \EndWhile
+    \For{each $v \in V$}
+        \State Assemble $S_v$ by merging all $\bar{S}_{v}([v, u])$ for neighbors $u$, ordered by $\rho$
+        \State $\mathit{ag}(v) \gets \mathrm{cost}(S_v)$
+    \EndFor
+    \State \Return $\min_{v \in V}\,\mathit{ag}(v)$
+\EndProcedure
+\end{algorithmic}
+\end{algorithm}
 We lay out the entire procedure in Algorithm \ref{alg:vis_roadmap}.
 
 
