@@ -172,44 +172,31 @@ Nonetheless, this concept provides a simple way to monitor and evaluate approach
 As such we find it useful to utilize shadow labels as a metric in the evaluation of the various algorithms detailed below.
 
 
-\subsection{Probabilistic Road Maps}
-The probabibilistic road map~(PRM) algorithm is a sampling-based method for motion planning. The algorithm proceeds as follows
-\begin{enumerate}
-	\item Sample $n$ configurations $\{q_i\}_{i=1}^n$ uniformly at random from $C_{\text{free}}$.
-	\item Construct a graph $G = (V, E)$ where $V = \{q_i\}$.
-	\item For each $q_i$, find its $k$-nearest neighbors $\mathcal{N}(q_i)$.
-	\item For each $q_j \in \mathcal{N}(q_i)$, attempt to connect $q_i$ and $q_j$:
-	\[
-	E \leftarrow E \cup \{(q_i, q_j)\} \quad \text{if } \text{LocalPlanner}(q_i, q_j) \subset C_{\text{free}}.
-	\]
-\end{enumerate}
+\subsection{Sampling-Based Motion Planning}
+Two core algorithms are of interest in the context of this comparison: randomly exploring rapid trees~(RRT) and probabalistic road maps~(PRM).
+Both algorithms build upon the theoretical framework of the random geometric graph~(RGG), a structure ...
+This imbues them with the property of \textit{probabilistic completenes}. As the number of samples taken approaches infinity, the probability of finding an optimal solution tend to $1$.
+Of course, the algorithms vary in specifics, as detailed below.
 
-Given a startconfiguration $q_{\text{start}}$ and goal configuration $q_{\text{goal}}$, connect them to $G$ and search for a path using a graph search algorithm.
+RRT algorithms build upon the random sampling of the configuration space around a robot to expand a tree. We begin by defining the ...
 
-PRM is probabilistically complete
-\[
-\lim_{n \to \infty} \mathbb{P}(\text{PRM finds a path}) = 1,
-\]
-if a feasible path exists in $C_{\text{free}}$.
+PRM instead builds upon the idea of ...
 
-\section*{Multi-Robot Systems}
+Most sampling-based motion planning algorithms struggle in higher-dimensional spaces, as a result of the search space growing exponentially in the number of dimensions~\cite{bibid}. 
+Of course, multi-robot planning exhibits such a property, with the number of dimensions increasing at a rate of $N|s_i|$.
+As a result, several extensions to RRT and PRM have been proposed to improve their performance in joint configuration spaces.
 
-For $m$ robots, the joint configuration space is
-\[
-C = C_1 \times C_2 \times \cdots \times C_m,
-\]
-which grows exponentially with $m$.
+Multi-robot RRT
 
-PRM has been extended to multi-robot systems via:
-\begin{itemize}
-	\item \textbf{Centralized PRM:} Build a roadmap in the joint space $C$, ensuring collision avoidance between robots.
-	\item \textbf{Decoupled PRM:} Plan paths independently in each $C_i$, then resolve conflicts.
-	\item \textbf{PRM-based coordination graphs:} Combine individual roadmaps with synchronization constraints.
-\end{itemize}
+Multi-robot PRM
 
 
 
 \subsection{Graph-Based Motion Planning}
+
+Graph-based motion planning transforms the continuous $C$-space into a discrete topological representation $G = (V,E)$. In this formulation, vertices $v \in V$ represent discrete configurations in $C_{free}$, while edges $e \in E$ represent feasible transitions between them. The framework typically follows a three step pipeline: a discretization phase, followed by edge weight aChosetssignment based on cost metrics, and a graph search algorithm to extract a least-cost path.
+
+The literature offers diverse approaches. Discretization may utlize exact cell decompositions (i.e. visibility graphs, Morse cells, or convex partitions \cite{choset2005principles}), or approximate grid-based decompositions. While classic methods like Breadth-First-Search (BFS) or Depth-First-Search (DFS) provide basic connectivity, modern motion planning heavily leverages informed search heurstics (namely A*) to manage the computational complexity inherent in high-dimensional state spaces.
 
 \subsection{Multi-Agent Reinforcement Learning}
 
@@ -220,6 +207,12 @@ PRM has been extended to multi-robot systems via:
 
 \subsection{Graph-based Approaches}
 
+Guibas and Lavalle \cite{guibas1997visibility} formalized the pursuit-evasion problem in continuous polygonal environments with recontaminations. They develop a complete algorithm for the case of a single pursuer. First, the workspace is partititioned into convex regions, with binary labels indicating contamination, then a search is performed on the resulting quotient information space. By the definition of convexity, all points in a convex cell are mutually visible \cite{boyd2004convex}, therefore, the pursuer's progress is tracked by its transitions between these cells. The distance between centroids as well as the contamination state are used as an information-based heuristic for Dijkstra's algorithm. They show a logarithmic bound on the number of needed pursuers (i.e. the search number) for simply-connected free spaces, but leave multi-agent algorithms for future work. As part of this work, we implemented the Guibas algorithm for a single pursuer.
+
+The most relevant paper for our tournament (respecting all game constraints) proposes Graph-Clear \cite{kolling2009pursuit}. A team of robots can execute \textit{sweep} actions to detect evaders in a vertex, and \textit{block} actions to prevent intruders from crossing an edge. A strategy consists of a sequence of block and sweep actions to detect all intruders despite possible recontamination. They show the computation of optimal strategies for this game is NP-hard for graphs; therefore the authors propose to create spanning trees, for which a Graph-Clear is a polynomial time algorithm. Intuitively, cycles in the graph are broken by agents executing a block action, reducing the problem to a tree search to be executed by the remaining agents.
+
+Some recent works tackle similar problem formulations, but do not qualify for the restrictions of this comparison. Namely, Zhou \cite{zhou2016cooperative} and Huang \cite{huang2011guaranteed} separately develop decentralized strategies for multiple pursuers in planar environments based on Voronoi decompositions; but evaders have finite speed. Bhattacharya et. al \cite{BHATTACHARYA20101745} analyze a cops and robber game in multidimensional grids, but cops are able to ``teleport'' across cells.
+
 \subsection{Learning-based Approaches}
 
 \section{Algorithm Implementation}
@@ -228,10 +221,9 @@ As we are interested in comparing recent developments in the field, we sampled a
 These are then compared on common metrics using a series of different maps.
 Below, we detail every algorithm selected for comparison.
 
-\subsection{Sample-Generated Pursuit-Evasion Graphs} \label{subsec:peg}
-Sample-generated pursuit-evasion graphs~(SG-PEG) utilize PRM-style sampling in a joint configuration space to find solutions to the VB-PE game.
-While based on PRM algorithms, no proofs of probabilistic completeness are provided for SG-PEG.
-In place of proofs, a high-level reasoning about the same properties holding is provided, though in practice, this does not carry much weight.
+\subsection{Sample-Generated Pursuit-Evasion Graphs}
+Sample-generated pursuit-evasion graphs~(SG-PEG) utilize RRT-style sampling in a joint configuration space to find solutions to the VB-PE game.
+While based on RRT algorihtms, no proofs of probabilistic completeness are provided for SG-PEG.
 
 We begin with a description of the graph data structure utilized in SG-PEG.
 The graph utilizes is a rooted di-graph with vertices representing joint robot configurations $r_{0:N}$, as well as the set of non-dominated shadows reachable by traversing the graph to the vertex in question.
@@ -255,35 +247,8 @@ Finally, a minimum cycle length is set to ensure that computation is not wasted 
 Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space.
 With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
-\subsection{Visibility Roadmaps}
-In \cite{}, an extension to SG-PEG is proposed. 
-Several key innovations are detailed, including an improved visibility-based sampling distribution, a solution refinement method, and a process for iteratively increasing the number of pursuers until a solution can be provided.
-Due to the references to visibility roadmaps in the paper title, we refer to this variant as visibility-roadmap SG-PEG~(VR-SG-PEG).
-We note that, as we are interested in evaluating each detailed algorithm in sterile and identical conditions, we omit the process of increasing the number of pursuers from our method, instead keeping this fixed based on a given configuration.
 
-In place of the uniform sampling recommended in SP-PEG, VR-SP-PEG uses an informed sampling method, referred to as web-sampling, to improve the density of samples in interesting regions.
-By extension, this nominally improves convergence properties of the planner, at the cost of higher levels of computation.
-The sampling proceeds in two phases: an initial visibility covering phase and an intersection sampling phase.
-
-In the first phase, a set of initial points $\mathcal{P}\subset \mathcal{C}$ is constructed, referred to as a covering set.
-This set is generated as follows: each initial point $p$ is sampled sequentially and randomly from outside the set of visible points in $\mathcal{C}$, i.e a sample $p_i$ is selected such that $p_i \notin \cup_{p_j\in \mathcal{P}}\mathcal{V}(p_j)$. This process continues until these mutually non-visible points cover the entire configuration space,$\cup_{p_j\in \mathcal{P}} \mathcal{V}(p_j) = \mathcal{C}$. 
-
-In the second phase, a series of points, denoted by the set $\mathcal{Q}$, are sampled to expand the roadmap data structure.
-This is done by sampling pairs of points $p_i, p_j \in \mathcal{P}$, denoted intersection points.
-A point is then sampled uniformly from the intersection of the individual visibility cones of each point $\mathcal{V}(p_i)\cap \mathcal{V}(p_j)$, if the intersection is non-empty.
-The so-called web is the union of the initial and intersection points $\mathcal{W} = \mathcal{P}\cup \mathcal{Q}$.
-A separate web is sampled for each pursuer, and if a web is ever exhausted, a new set of webs is generated to continue.
-The pursuit-evasion graph is constructed by sampling points from these webs without replacement.
-
-
-The second innovation of note is the inclusion of a solution refinement step, devised to reduce unnecessary movement of the robots.
-This acts as a post-processing step, filtering out the extraneuous plan branches.
-Iteratively, two non-adjacent points from the solution $z_a, z_b$ are selected to check if a shortcut from $z_a$ to $z_b$ is still a valid solution.
-In addition to standard kinematic and collision avoidance constraints, the algorithm checks whether adjusting the solution in this manner clears the same set of shadows as the original solution, using the procedure laid out in Subsection \ref{subsec:peg}.
-
-
-
-\section{Comparison Methodology} \label{sec:compare}
+\section{Comparison Methodology}
 
 \section{Open Problems}
 % Based upon your work, what are some (specific) open problems in the topic area? Are there any major obstacles to progress (e.g. insufficient compute, unsolved theoretical issues)? Can you suggest possible ways to move forward?
