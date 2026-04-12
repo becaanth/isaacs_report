@@ -384,58 +384,46 @@ In our implementation, ViPER is treated as an online planner: we construct the v
 		\hline
 		
 		% -------- Map 1 --------
-		\multirow{4}{*}{\textbf{Map 1}}
-		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\multirow{4}{*}{\textbf{Simple Obstacles}}
+		& \textbf{SG-PEG}      &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		& \textbf{VR-SG-PEG}   &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		& \textbf{Graph-Based} &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		& \textbf{ViPER}       &  &  &  &  &  &  \\
 		\hline
 		
 		% -------- Map 2 --------
-		\multirow{4}{*}{\textbf{Map 2}}
-		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\multirow{4}{*}{\textbf{Ring}}
+		& \textbf{SG-PEG}      &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		& \textbf{VR-SG-PEG}   &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		& \textbf{Graph-Based} &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		& \textbf{ViPER}       &  &  &  &  &  &  \\
 		\hline
 		
 		% -------- Map 3 --------
-		\multirow{4}{*}{\textbf{Map 3}}
-		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\multirow{4}{*}{\textbf{H-Map}}
+		& \textbf{SG-PEG}      &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		& \textbf{VR-SG-PEG}   &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		& \textbf{Graph-Based} &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		& \textbf{ViPER}       &  &  &  &  &  &  \\
 		\hline
 		
 		% -------- Map 4 --------
-		\multirow{4}{*}{\textbf{Map 4}}
-		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\multirow{4}{*}{\textbf{Convex Obstacles}}		& \textbf{SG-PEG}      &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		& \textbf{VR-SG-PEG}   &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		& \textbf{Graph-Based} &  &  &  &  &  &  \\
 		\cline{2-8}
-		& \textbf{Alg 4} &  &  &  &  &  &  \\
-		\hline
-		
-		% -------- Map 5 --------
-		\multirow{4}{*}{\textbf{Map 5}}
-		& \textbf{Alg 1} &  &  &  &  &  &  \\
-		\cline{2-8}
-		& \textbf{Alg 2} &  &  &  &  &  &  \\
-		\cline{2-8}
-		& \textbf{Alg 3} &  &  &  &  &  &  \\
-		\cline{2-8}
-		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		& \textbf{ViPER}       &  &  &  &  &  &  \\
 		\hline
 		
 	\end{tabular}
@@ -521,7 +509,6 @@ This further validates the claim that the size of the map is one of the more sal
 \section{Open Problems}\label{sec:open_prob}
 % Based upon your work, what are some (specific) open problems in the topic area? Are there any major obstacles to progress (e.g. insufficient compute, unsolved theoretical issues)? Can you suggest possible ways to move forward?
 Overall, much work remains to be done on the topic of motion planning in multi-robot pursuit evasion games.
-
 The lack of easily comparable methods has led to difficult to recreate results, and likely hinders real progress on the problem.
 It would be beneficial for the field in general to standardize problem instances and open source implementations of these algorithms to help model and uncover hidden assumptions in their methodology.
 
