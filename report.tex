@@ -268,12 +268,12 @@ As we are interested in comparing recent developments in the field, we sampled a
 These are then compared on common metrics using a series of different maps.
 Below, we detail every algorithm selected for comparison.
 
-\subsection{Sample-Generated Pursuit-Evasion Graphs}
-Sample-generated pursuit-evasion graphs~(SG-PEG) utilize RRT-style sampling in a joint configuration space to find solutions to the VB-PE game.
-While based on RRT algorihtms, no proofs of probabilistic completeness are provided for SG-PEG.
+\subsection{Sample-Generated Pursuit-Evasion Graphs} \label{subsec:peg}
+Sample-generated pursuit-evasion graphs~(SG-PEG) utilize PRM-style sampling in a joint configuration space to find solutions to the visibility-base pursuit-evasion game.
+While based on PRM algorihtms, no proofs of probabilistic completeness are provided for SG-PEG~\cite{stiffler2014sampling}.
 
 We begin with a description of the graph data structure utilized in SG-PEG.
-The graph utilizes is a rooted di-graph with vertices representing joint robot configurations $r_{0:N}$, as well as the set of non-dominated shadows reachable by traversing the graph to the vertex in question.
+The graph utilized is a rooted di-graph with vertices representing joint robot configurations $p_{0:N}$, as well as the set of non-dominated shadows reachable by traversing the graph to the vertex in question.
 For an edge to be considered valid in the context of the graph, a line in the joint configuration space $\mathcal{C}^N$ must exist that maps reachable configurations of shadow labels at the source vertex to the same at the target vertex.
 
 The core complexity in the graph arises from the operation necessary to add an edge. 
@@ -282,9 +282,10 @@ To do so, interpolation between the two associated joint configurations is utili
 Shadow events are then computed at these evenly spaced joint configurations, propagating the intermediate labels between the vertices.
 
 Upon adding a new edge, the algorithm recursively searches through the neighbours of the vertex, updating the dominated labels.
-This acts as bookkeeping for a solutions.
+This acts as bookkeeping for finding a solution.
 If the reachable labels are all clear for a given vertex, the vertex must denote a full clearing of the environment.
-Upon this condition being met, we may then reconstruct a solution from the intermediate waypoints between the root and the cleared node, as in any tree-based motion planning method. A visualization of the sampling process after a number of iterations can be seen in Figure \ref{fig:sbpeg}.
+Upon this condition being met, we may then reconstruct a solution from the intermediate waypoints between the root and the cleared node, as in any sampling-based motion planning method. 
+A visualization of the sampling process after a number of iterations can be seen in Figure \ref{fig:sbpeg}.
 
 \begin{figure}
 	\centering
@@ -296,12 +297,13 @@ Upon this condition being met, we may then reconstruct a solution from the inter
 The authors utilize three constraints to filter which edges should be added to the graph.
 The first is mutual visibility - a line of sight, or obstacle free straight line path, must exist between each pursuers configuration at vertex $i$ and its corresponding configuration at vertex $i+1$.
 The second is edge-length, with a maximum distance being set between two configurations.
-Finally, a minimum cycle length is set to ensure that computation is not wasted on low-information configuration changes. Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space.
+Finally, a minimum cycle length is set to ensure that computation is not wasted on low-information configuration changes. Numerous sampling strategies are explored, but none seem to outperform uniform sampling in the joint configuration space. 
+The full procedure is outlined in pseudo-code in Algorithm \ref{alg:sbpeg}.
 
 
 \subsection{Visibility Roadmaps}
 In \cite{vis_roadmap}, an extension to SG-PEG is proposed. 
-Several key innovations are detailed, including an improved visibility-based sampling distribution, a solution refinement method, and a process for iteratively increasing the number of pursuers until a solution can be provided.
+Several key innovations are detailed, including an improved visibility-based sampling distribution, a solution refinement method, and a process for iteratively increasing the number of pursuers until a solution can be provided~\cite{vis_roadmap}.
 Due to the references to visibility roadmaps in the paper title, we refer to this variant as visibility-roadmap SG-PEG~(VR-SG-PEG).
 We note that, as we are interested in evaluating each detailed algorithm in sterile and identical conditions, we omit the process of increasing the number of pursuers from our method, instead keeping this fixed based on a given configuration.
 
@@ -310,14 +312,16 @@ By extension, this nominally improves convergence properties of the planner, at 
 The sampling proceeds in two phases: an initial visibility covering phase and an intersection sampling phase.
 
 In the first phase, a set of initial points $\mathcal{P}\subset \mathcal{C}$ is constructed, referred to as a covering set.
-This set is generated as follows: each initial point $p$ is sampled sequentially and randomly from outside the set of visible points in $\mathcal{C}$, i.e a sample $p_i$ is selected such that $p_i \notin \cup_{p_j\in \mathcal{P}}\mathcal{V}(p_j)$. This process continues until these mutually non-visible points cover the entire configuration space,$\cup_{p_j\in \mathcal{P}} \mathcal{V}(p_j) = \mathcal{C}$. 
+This set is generated as follows: each initial point $p$ is sampled sequentially and randomly from outside the set of visible points $\mathcal{V}$, i.e a sample $p_i$ is selected such that $p_i \notin \cup_{p_j\in \mathcal{P}} \mathcal{V}(p_j)$. 
+This process continues until these mutually non-visible points cover the entire configuration space,$\cup_{p_j\in \mathcal{P}} \mathcal{V}(p_j) = \mathcal{C}$. 
 
 In the second phase, a series of points, denoted by the set $\mathcal{Q}$, are sampled to expand the roadmap data structure.
 This is done by sampling pairs of points $p_i, p_j \in \mathcal{P}$, denoted intersection points.
 A point is then sampled uniformly from the intersection of the individual visibility cones of each point $\mathcal{V}(p_i)\cap \mathcal{V}(p_j)$, if the intersection is non-empty.
 The so-called web is the union of the initial and intersection points $\mathcal{W} = \mathcal{P}\cup \mathcal{Q}$.
 A separate web is sampled for each pursuer, and if a web is ever exhausted, a new set of webs is generated to continue.
-The pursuit-evasion graph is constructed by sampling points from these webs without replacement. A visualization of the sampled and connected graph can be seen in Figure \ref{fig:vrsb}.
+The pursuit-evasion graph is constructed by sampling points from these webs without replacement. 
+A visualization of the sampled and connected graph can be seen in Figure \ref{fig:vrsb}.
 
 \begin{figure}
 	\centering
@@ -331,6 +335,7 @@ The second innovation of note is the inclusion of a solution refinement step, de
 This acts as a post-processing step, filtering out the extraneous plan branches.
 Iteratively, two non-adjacent points from the solution $z_a, z_b$ are selected to check if a shortcut from $z_a$ to $z_b$ is still a valid solution.
 In addition to standard kinematic and collision avoidance constraints, the algorithm checks whether adjusting the solution in this manner clears the same set of shadows as the original solution, using the procedure laid out in Subsection \ref{subsec:peg}.
+We lay out the entire procedure in Algorithm \ref{alg:vis_roadmap}.
 
 \subsection{ViPER}
 
