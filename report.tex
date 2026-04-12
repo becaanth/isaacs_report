@@ -66,36 +66,40 @@ The remainder of this work is organized as follows; in Section \ref{sec:backgrou
 
 \subsection{Pursuit-Evasion Games}
 
-Pursuit-evasion games study the interaction between one or more pursuers and one or more evaders moving in a configuration space $\mathcal{C} \subset \mathbb{R}^d$. 
+Pursuit-evasion games study the interaction between one or more pursuers and one or more evaders moving in a configuration space $\mathcal{D} \subset \mathbb{R}^d$. 
 The objective of the pursuers is to capture the evaders, while the evaders aim to avoid capture. 
-These problems arise in robotics, control theory, and differential games.
+These problems arise in robotics, control theory, and differential games~\cite{diff_games}.
 
 A common formulation models the players as dynamical systems. 
 For a single pursuer with state $x_p(t)$ and evader with state $x_e(t)$, their dynamics may be written as
 \[
 \dot{x}_p(t) = u_p(t), \quad \dot{x}_e(t) = u_e(t),
 \]
-where $u_p(t), u_e(t) \in \mathcal{U}$ are control inputs subject to bounded speed constraints, e.g., $\|u_p\| \leq v_p$, $\|u_e\| \leq v_e$. The game terminates upon capture, often defined as
+where $u_p(t), u_e(t) \in \mathcal{U}$ are control inputs subject to bounded speed constraints. 
+The game terminates upon capture, defined as
 \[
 \|x_p(t) - x_e(t)\| \leq \varepsilon,
 \]
 for some radius $\varepsilon > 0$.
 
-The pursuer seeks a control strategy $u_p(\cdot)$ that guarantees capture in finite time, while the evader seeks to maximize the capture time or avoid capture indefinitely. 
-Strategies may be open-loop or feedback, and optimal strategies are often characterized using tools from differential game theory, such as Hamilton-Jacobi-Isaacs (HJI) equations~\cite{diff_games}.
-In higher dimensional spaces, ore even with more complex kinematics, solutions to these equations are often intractable to compute.
+The pursuer utilizes a control strategy $u_p(\cdot)$ that guarantees capture in finite time, while the evader uses a strategy $u_e(\cdot)$ to maximize the capture time. 
+Optimal strategies are usually recovered using methods from differential game theory, such as Hamilton-Jacobi-Isaacs equations~\cite{diff_games}.
+In higher dimensional spaces, or even with more complex kinematics, solutions to these equations are often intractable to compute.
 
 \subsection{The N-Pursuer Visibility-Based Pursuit-Evasion Game}
 
-In the N-pursuer visibility-based pursuit-evasion problem, a team of $N$ pursuers cooperatively searches for an evader with an unknown position in a known environment $\mathcal{D} \subset \mathbb{R}^2$.
+In the N-pursuer visibility-based pursuit-evasion problem, a team of $N$ pursuers cooperatively searches for an evader with an unknown position in a known environment $\mathcal{D}$.
 We denote the configuration space of the environment, exclusive of obstacles, as $\mathcal{C} \subset \mathcal{D}$.
 One key distinction from the standard model of the pursuit-evasion game is that information is limited by line-of-sight visibility: the evader is detected only if it lies within the visible region of at least one pursuer.
 This visible region is defined by the joint configurations of the pursuer, the shape of $\mathcal{C}$, and the position of obstacles~\cite{vis_pursuit}.
 
-Let the pursuers have states $\{x_i(t)\}_{i=1}^N \subset \mathcal{C}$. The environment induces a visibility map: for a pursuer at $x_i$, its visibility region is
+Let the pursuers have states $\{x_i(t)\}_{i=1:N} \subset \mathcal{C}$. 
+The locations of obstacles in configuration space define a visibility map.
+For a pursuer at $x_i$, its visibility region is
 \[
 \mathcal{V}(x_i) = \{ y \in \mathcal{D} \mid \text{$y$ is visible from $x_i$} \}.
 \]
+We refer to the joint Visibility region of all pursuers as $\mathcal{V}$. 
 In this variation of the pursuit evasion-game, the evader is often treated as an abstraction rather than a physical entity. 
 We assume the position of the pursuer $e(t) \in \mathcal{C}$ at time $t$ is a continuous function $e:[0,\infty) \to\mathcal{C}$ that describes the path of the evader moving at arbitrary speeds. 
 This allows the evader to inhabit any location in a connected subspace $\mathcal{S}\in \mathcal{C}\\ \mathcal{V}(x)$. We refer to $\mathcal{S}(t)$ as the shadow set at time $t$. 
