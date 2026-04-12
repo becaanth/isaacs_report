@@ -503,6 +503,23 @@ Training uses Soft Actor-Critic~\cite{haarnoja2018soft} under CTDE: the actor re
 During evaluation, only the actor is used.
 In our implementation, ViPER is treated as an online planner: we construct the visibility graph, compute node features from the shared map, query the actor for each pursuer, execute the selected moves, and evaluate the resulting trajectory with the same shadow-tracking and tournament metrics used for the other methods.
 
+A key node feature is the \emph{safe\_utility}: the number of safe-zone frontier cells visible from a given node within a fixed sensing range, accounting for line-of-sight.
+Nodes deep inside the already-cleared region have low safe\_utility (few reachable frontiers), while nodes at the perimeter of the cleared zone, where new area can be uncovered, have high safe\_utility.
+Because frontiers shift as agents advance, safe\_utility is recomputed at every decision step; the policy is trained to steer agents toward high-utility nodes to maximise clearance rate.
+Figure~\ref{fig:viper} shows a snapshot of the viewpoint graph during execution: node color encodes safe\_utility, ranging from dark purple (low) through teal to yellow (high).
+Agents are shown as open circles connected by a red line indicating their current heading direction, and the pink shaded regions are areas that have been recontaminated and must be re-cleared.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.75\linewidth]{figs/viper.png}
+	\caption{Snapshot of the ViPER viewpoint graph during execution on a representative map.
+	Node color encodes \emph{safe\_utility} --- the number of safe-zone frontier cells visible from each node --- from dark purple (low value, deep inside the cleared region) to light yellow (high value, at the active clearing frontier).
+	Open circles mark the pursuer positions; the red line indicates the direction of current motion for each pursuer.
+	Pink regions are recontaminated areas awaiting re-clearance.
+	As clearing progresses, frontier nodes become interior nodes and their utility drops, driving agents onward to new frontiers.}
+	\label{fig:viper}
+\end{figure}
+
 \section{Comparison Methodology}\label{sec:comp}
 
 We evaluate the methods described in Section~\ref{sec:algo} using a unified set of metrics: planning time, execution time, total path length, maximum environment coverage, and success rate. P
