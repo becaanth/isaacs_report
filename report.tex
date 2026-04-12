@@ -54,6 +54,14 @@ In this formulation, the evaders are often treated as abstract entities that can
 This forces the pursuing team to plan for the worst-case scenario.
 As such, the problem devolves into a type of constrained frontier expansion problem on a known environment.
 This makes the formulation of interest to motion planning researchers.
+A depiction of such a game, along with a valid solution for clearing the map, is depicted in Figure \ref{fig:valid}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.75\linewidth]{figs/valid_plan.png}
+	\caption{A sample map~(obstacles and boundaries in green), with three agents~(medium blue circles) traversing their valid motion plans~(coloured lines and nodes) through a joint configuration space.}
+	\label{fig:valid}
+\end{figure}
  
 Many solutions have been proposed for this problem, from learning-based methods~\cite{wang2024viper}, sampling-based approaches\cite{stiffler2014sampling,stiffler2016pursuit}, and graph-search algorithms~\cite{kolling2009pursuit}.
 However, in the literature, practitioners tend to compare only against solutions they have readily available - ignoring suitable baselines from other problem formulations and only evaluating on limited subsets of the total problem space.
@@ -161,9 +169,17 @@ in a 64mx64m environment at a resolution of 1m, discretization yields 4096 cells
 Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
 This leads to significant slow-downs in sampling on more complex and larger maps.
 Speed-ups can be made by decreasing the resolution, but this comes at the cost of potentially missing contaminations.
+We provide a visualization of these shadows in the midst of a plan being executed in Figure \ref{fig:shadow}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.75\linewidth]{figs/shadows.png}
+	\caption{Cleared~(green) and contaminated~(red) shadows. The status of the shadow labels are determined by the history of the game and the existence and configuration of the shadows are determined by the line of sight of the pursuers~(blue).}
+	\label{fig:shadow}
+\end{figure}
 
 Nonetheless, this concept provides a simple way to monitor and evaluate approaches to this problem.
-As such we find it useful to utilize shadow labels as a metric in the evaluation of the various algorithms detailed below.
+As such we find it useful to utilize shadow labels as a metric in the evaluation of the various algorithms detailed below. 
 
 
 \subsection{Probabilistic Road Maps}
@@ -530,6 +546,43 @@ The \texttt{simple\_obs} map includes several polygonal obstacles and a large ci
 The \texttt{ring} map consists of two enclosing walls with narrow gaps, requiring coordinated clearing to avoid recontamination. 
 The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared edliberatly before advancing. 
 Finally, \texttt{convex\_obstacles} features multiple convex obstacles and presents the greatest challenge for recontamiation.
+
+\begin{figure}[t]
+	\centering
+	
+	\begin{subfigure}[b]{0.45\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figs/simple_obs.png}
+		\caption{Map 1 description}
+		\label{fig:map1}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.45\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figs/ring.png}
+		\caption{Map 2 description}
+		\label{fig:map2}
+	\end{subfigure}
+	
+	\vspace{0.5em}
+	
+	\begin{subfigure}[b]{0.45\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figs/hmap.png}
+		\caption{Map 3 description}
+		\label{fig:map3}
+	\end{subfigure}
+	\hfill
+	\begin{subfigure}[b]{0.45\linewidth}
+		\centering
+		\includegraphics[width=\linewidth]{figs/conv_obst.png}
+		\caption{Map 4 description}
+		\label{fig:map4}
+	\end{subfigure}
+	
+	\caption{Comparison of four maps used in evaluation.}
+	\label{fig:maps}
+\end{figure}
 
 For each map, we generate 30 sets of random initial pursuer configurations. These spawn configurations are held constant across all methods to ensure fair comparison. 
 In addition, we evaluate scalability by varying the number of pursuers on the \texttt{simple\_obs} map.
