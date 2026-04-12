@@ -10,6 +10,7 @@
 \usepackage{subcaption}
 \usepackage{hyperref}
 \usepackage{xcolor}
+\usepackage{multirow}
 \addbibresource{references.bib}
 \def\BibTeX{{\rm B\kern-.05em{\sc i\kern-.025em b}\kern-.08em
     T\kern-.1667em\lower.7ex\hbox{E}\kern-.125emX}}
@@ -254,7 +255,6 @@ Some recent works tackle similar problem formulations, but do not qualify for th
 
 \subsection{Learning-based Approaches}
 
-<<<<<<< Updated upstream
 Learning-based approaches to pursuit-evasion can be separated into two broad groups.
 The first considers pursuit as a chasing or interception problem, where the evader's state is available to the pursuers.
 For example, decentralized deep RL has been used to train multiple pursuers under local sensing and communication constraints~\cite{de2021decentralized}.
@@ -305,7 +305,6 @@ Numerous sampling strategies are explored, but none seem to outperform uniform s
 With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
 
-<<<<<<< Updated upstream
 \subsection{Visibility Roadmaps}
 In \cite{}, an extension to SG-PEG is proposed. 
 Several key innovations are detailed, including an improved visibility-based sampling distribution, a solution refinement method, and a process for iteratively increasing the number of pursuers until a solution can be provided.
@@ -339,7 +338,6 @@ It represents the known free space as a graph $G_t=(V_t,E_t)$ of candidate viewp
 At every decision step, each pursuer observes an augmented version of this graph containing relative node positions, teammate occupancy, frontier utility, uncovered-frontier utility, cleared-state indicators, and an $A^*$ guide signal.
 The shared policy $\pi_\theta(a_i(t)\mid o_i(t))$ then chooses a neighboring viewpoint for each pursuer, so the learned action space remains tied to feasible motion on the map.
 
-The environment state follows the same cleared/contaminated interpretation used elsewhere in this report.
 The map is divided into occupied cells $\mathcal{M}_o$, free cells $\mathcal{M}_f$, and cleared cells $\mathcal{M}_c$; uncovered frontiers between $\mathcal{M}_c$ and $\mathcal{M}_f\setminus\mathcal{M}_c$ are the locations through which a worst-case evader can recontaminate cleared space.
 ViPER optimizes synchronized team motion, where the cost of a step is the longest distance traveled by any pursuer before the next decision.
 Its shared reward is
@@ -360,6 +358,161 @@ During evaluation, only the actor is used.
 In our implementation, ViPER is treated as an online planner: we construct the visibility graph, compute node features from the shared map, query the actor for each pursuer, execute the selected moves, and evaluate the resulting trajectory with the same shadow-tracking and tournament metrics used for the other methods.
 
 \section{Comparison Methodology}\label{sec:comp}
+
+\section{Numerical Results}\label{sec:results}
+
+\begin{table*}[t]
+	\centering
+	\caption{Comparison of Planning Algorithms Across Different Maps}
+	\label{tab:comparison}
+	\renewcommand{\arraystretch}{1.3}
+	\setlength{\tabcolsep}{5pt}
+	
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		
+		\multirow{2}{*}{\textbf{Map}} & \multirow{2}{*}{\textbf{Algorithm}} 
+		& \multicolumn{2}{c|}{\textbf{Time (s)}} 
+		& \multirow{2}{*}{\textbf{Coverage (\%)}} 
+		& \multirow{2}{*}{\textbf{Success Rate (\%)}} 
+		& \multicolumn{2}{c|}{\textbf{Path Length}} \\
+		\cline{3-4} \cline{7-8}
+		
+		& 
+		& \textbf{Mean} & \textbf{Std} 
+		& 
+		& 
+		& \textbf{Mean} & \textbf{Std} \\
+		\hline
+		
+		% -------- Map 1 --------
+		\multirow{4}{*}{\textbf{Map 1}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+		% -------- Map 2 --------
+		\multirow{4}{*}{\textbf{Map 2}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+		% -------- Map 3 --------
+		\multirow{4}{*}{\textbf{Map 3}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+		% -------- Map 4 --------
+		\multirow{4}{*}{\textbf{Map 4}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+		% -------- Map 5 --------
+		\multirow{4}{*}{\textbf{Map 5}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+	\end{tabular}
+\end{table*}
+
+\begin{table*}[t]
+	\centering
+	\caption{Performance Comparison on Map X with Varying Number of Robots}
+	\label{tab:scaling}
+	\renewcommand{\arraystretch}{1.3}
+	\setlength{\tabcolsep}{5pt}
+	
+	\begin{tabular}{|c|c|c|c|c|c|c|c|}
+		\hline
+		
+		\multirow{2}{*}{\textbf{\# Robots}} & \multirow{2}{*}{\textbf{Algorithm}} 
+		& \multicolumn{2}{c|}{\textbf{Time (s)}} 
+		& \multirow{2}{*}{\textbf{Coverage (\%)}} 
+		& \multirow{2}{*}{\textbf{Success Rate (\%)}} 
+		& \multicolumn{2}{c|}{\textbf{Path Length}} \\
+		\cline{3-4} \cline{7-8}
+		
+		& 
+		& \textbf{Mean} & \textbf{Std} 
+		& 
+		& 
+		& \textbf{Mean} & \textbf{Std} \\
+		\hline
+		
+		% -------- Robots = 1 --------
+		\multirow{4}{*}{\textbf{1}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+		% -------- Robots = 2 --------
+		\multirow{4}{*}{\textbf{2}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+		% -------- Robots = 5 --------
+		\multirow{4}{*}{\textbf{5}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+		% -------- Robots = 10 --------
+		\multirow{4}{*}{\textbf{10}}
+		& \textbf{Alg 1} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 2} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 3} &  &  &  &  &  &  \\
+		\cline{2-8}
+		& \textbf{Alg 4} &  &  &  &  &  &  \\
+		\hline
+		
+	\end{tabular}
+\end{table*}
 
 \section{Open Problems}\label{sec:open_prob}
 % Based upon your work, what are some (specific) open problems in the topic area? Are there any major obstacles to progress (e.g. insufficient compute, unsolved theoretical issues)? Can you suggest possible ways to move forward?
