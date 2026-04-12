@@ -281,7 +281,14 @@ Shadow events are then computed at these evenly spaced joint configurations, pro
 Upon adding a new edge, the algorithm recursively searches through the neighbours of the vertex, updating the dominated labels.
 This acts as bookkeeping for a solutions.
 If the reachable labels are all clear for a given vertex, the vertex must denote a full clearing of the environment.
-Upon this condition being met, we may then reconstruct a solution from the intermediate waypoints between the root and the cleared node, as in any tree-based motion planning method.
+Upon this condition being met, we may then reconstruct a solution from the intermediate waypoints between the root and the cleared node, as in any tree-based motion planning method. A visualization of the sampling process after a number of iterations can be seen in Figure \ref{fig:sbpeg}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.75\linewidth]{figs/sb_peg.png}
+	\caption{SG-PEG after two rounds of sampling and edge connections}
+	\label{fig:sbpeg}
+\end{figure}
 
 The authors utilize three constraints to filter which edges should be added to the graph.
 The first is mutual visibility - a line of sight, or obstacle free straight line path, must exist between each pursuers configuration at vertex $i$ and its corresponding configuration at vertex $i+1$.
@@ -307,7 +314,14 @@ This is done by sampling pairs of points $p_i, p_j \in \mathcal{P}$, denoted int
 A point is then sampled uniformly from the intersection of the individual visibility cones of each point $\mathcal{V}(p_i)\cap \mathcal{V}(p_j)$, if the intersection is non-empty.
 The so-called web is the union of the initial and intersection points $\mathcal{W} = \mathcal{P}\cup \mathcal{Q}$.
 A separate web is sampled for each pursuer, and if a web is ever exhausted, a new set of webs is generated to continue.
-The pursuit-evasion graph is constructed by sampling points from these webs without replacement.
+The pursuit-evasion graph is constructed by sampling points from these webs without replacement. A visualization of the sampled and connected graph can be seen in Figure \ref{fig:vrsb}.
+
+\begin{figure}
+	\centering
+	\includegraphics[width=0.75\linewidth]{figs/vr_sb_peg.png}
+	\caption{VR-SG-PEG after two rounds of sampling and edge connections}
+	\label{fig:vrsb}
+\end{figure}
 
 
 The second innovation of note is the inclusion of a solution refinement step, devised to reduce unnecessary movement of the robots.
