@@ -437,11 +437,10 @@ where $\mathit{R}$ represents \texttt{clear}, $\mathit{C}$ represents \texttt{co
 
 \begin{figure}[t]
 	\centering
-	\includegraphics[width=\columnwidth, page=1]{figs/graph-based-figs.pdf}
-	\caption{Decomposition of a polygonal environment into convex regions.}
+	\includegraphics[width=0.7\columnwidth]{figs/graph-clear.png}
+	\caption{Graph-clear on the \texttt{convex\_obstacles} map. Note the convex cell decomposition of the configuration space.}
 	\label{fig:convex}
 \end{figure}
-
 The two actions that can be taken by agents are \textit{sweeping} and \textit{blocking}. Sweeping actions enter a convex cell, and mark the associated vertex clear in the surveillance graph. Blocking actions entail agents waiting on the boundary of two cells, breaking cycles in the topology such that a subgraph is a spanning tree for other agents to decontaminate. Agents work together to coordinate
 
 The algorithm processes the surveillance tree bottom-up, associating an optimal \textit{full-cut sequence} $\bar{S}_{v_x}(e)$ with each directed edge $e = [v_x, v_y]$, representing the cheapest contiguous progressive clearing order for the subtree rooted at $v_y$ once $v_x$ is already clear.
