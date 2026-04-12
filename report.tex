@@ -17,7 +17,7 @@
     
 \begin{document}
 
-\title{Title}
+\title{Isaac's Tournament: A Comparison of The State of the Art in Multi-Robot Pursuit-Evasion Games}
 
 \author{
     \IEEEauthorblockN{Luka Antonyshyn, Anthony Beca, Aoran Jiao, and Elliot Preston-Krebs}
@@ -65,9 +65,9 @@ Here, we pursue a simplified version of Axelrod's tournament on one differential
 We implement four approaches to the multi-pursuer observability-based pursuit evasion game, and compare them on numerous scenarios using common metrics.
 We identify and analyse the behaviours of each method under various conditions that challenge their formulations, and use the information to recommend steps for future works.
 
-The remainder of this work is organized as follows; in Section \ref{}, we review the related works; in Section \ref{label}, we state the exact problem formulation; in Section \ref{provide the background knowledge necessary }, we detail the individual algorithms we implement and evaluate, in Section \ref{}, we detail our methodology for comparison; in Section \ref{label}, we discuss and analyse the methods comparisons and failure modes; and in Section \ref{}, we identify promising areas for further investigatin.
+The remainder of this work is organized as follows; in Section \ref{sec:lit_rev}, we review the related works; in Section \ref{sec:background}, we state the exact problem formulation; in Section \ref{sec:algo}, we detail the individual algorithms we implement and evaluate, in Section \ref{}, we detail our methodology for comparison; in Section \ref{sec:comp}, we discuss and analyse the methods comparisons and failure modes; and in Section \ref{sec:open_prob}, we identify promising areas for further investigatin.
 
-\section{Background}
+\section{Background} \label{sec:background}
 
 \subsection{Pursuit-Evasion Games}
 
@@ -98,11 +98,11 @@ Sampling-based planners are often adapted to compute strategies or reachable set
 In the N-pursuer visibility-based pursuit-evasion problem, a team of $N$ pursuers cooperatively searches for an evader with an unknown position in a known environment $\mathcal{D} \subset \mathbb{R}^2$.
 We denote the configuration space of the environment, exclusive of obstacles, as $\mathcal{C} \subset \mathcal{D}$.
 One key distinction from the standard model of the pursuit-evasion game is that information is limited by line-of-sight visibility: the evader is detected only if it lies within the visible region of at least one pursuer.
-This visible region is defined by the joint configurations of the pursuer, the shape of $\mathcal{D}$, and the position of obstacles.
+This visible region is defined by the joint configurations of the pursuer, the shape of $\mathcal{C}$, and the position of obstacles.
 
 Let the pursuers have states $\{x_i(t)\}_{i=1}^N \subset \mathcal{C}$. The environment induces a visibility map: for a pursuer at $x_i$, its visibility region is
 \[
-\mathcal{V}(x_i) = \{ y \in \mathcal{D} \mid \text{$y$ is visible from $x_i$ (line-of-sight not obstructed)} \}.
+\mathcal{V}(x_i) = \{ y \in \mathcal{D} \mid \text{$y$ is visible from $x_i$} \}.
 \]
 In this variation of the pursuit evasion-game, the evader is often treated as an abstraction rather than a physical entity. 
 We assume the position of the pursuer $e(t) \in \mathcal{C}$ at time $t$ is a continuous function $e:[0,\infty) \to\mathcal{C}$ that describes the path of the evader moving at arbitrary speeds. 
@@ -115,18 +115,15 @@ The pursuers seek strategies that ensure that, regardless of the evader trajecto
 \]
 
 A central concept is the partition of $\mathcal{C}$ into cleared and contaminated regions. 
-A point $y \in \mathcal{D}$ is cleared at time $t$ if it has been visible to some pursuer at some prior time and cannot be re-entered by the evader without being detected. 
+A point $y \in \mathcal{C}$ is cleared at time $t$ if it has been visible to some pursuer at some prior time and cannot be re-entered by the evader without being detected. 
 This is equivalent to it not being path-connected to a contaminated region.
-Otherwise, it is contaminated. Let $\mathcal{\tilde{S}}(t)$ and $\mathcal{\bar{S}}(t)$ denote the cleared and contaminated regions, respectively, with
+Otherwise, the point is contaminated.
+Let $\mathcal{\tilde{S}}(t)$ and $\mathcal{\bar{S}}(t)$ denote the cleared and contaminated regions, respectively, with
 \[
 \mathcal{C} = \mathcal{\tilde{S}}(t) \cup \mathcal{\bar{S}}(t).
 \]
 Pursuer strategies must ensure that $\mathcal{\bar{S}}(t)$ shrinks monotonically, avoiding recontamination.
-This effectively collapses to a constrained form of the frontier expansion problem where frontiers are dynamic and may rejoin each other.
-
-A common abstraction decomposes $\mathcal{C}$ into a cell complex or graph $G = (V,E)$, where vertices represent regions and edges represent adjacency.
-Visibility constraints induce a notion of guarded vertices~\cite{}. 
-The problem reduces to finding a sequence of moves for $N$ pursuers such that all vertices become cleared without allowing recontamination, analogous to node-searching problems on graphs~\cite{}.
+This effectively collapses to a constrained form of the frontier expansion problem, where frontiers are dynamic and may rejoin each other.
 
 The visibility-based pursuit-evasion problem is significantly harder than classical pursuit-evasion due to partial information and the need for coordination. 
 Determining the minimum $N$ required for guaranteed detection is generally NP-hard~\cite{}. 
@@ -220,9 +217,32 @@ Actor-critic algorithms are a common implementation of this idea: the actor repr
 Off-policy methods reuse stored experience, while on-policy methods update from recently collected trajectories.
 For spatial multi-agent problems, learned policies are often paired with graph neural networks or attention layers so that variable-size maps and teams can be encoded without flattening everything into a fixed-size vector.
 
-\section{Literature Review}
+\section{Literature Review}\label{sec:lit_rev}
 % Provide a structured review of seminal and recent work in your topic area. You should attemp to provide a (brief) taxonomy of research results, organized in such a way that someone reading your report will be able ot understand some common research threads
+\subsection{Pursuit-Evasion Games}
+The pursuit-evasion game was originally introduced by Rufus Isaacs in his seminal work on differential game theory~\cite{bibid}.
+Isaacs detailed a method for finding optimal solutions to differential games, relying on an equation, dubbed the Hamilton-Jacobi-Isaacs~(HJI) equation.
+The solution to this equation is tractable to calculate analytically in low-dimensional spaces.
+More recently, work has focused on extending solution methodologies for the pursuit-evasion game to high-dimensional spaces~\cite{bibid}, or scenarios with more agents~\cite{}.
+
+The visibility-based pursuit-evasion game was first introduced by Suzuki and Yamashita~\cite{}.
+Follow up works focused on the development of provably complete methods~\cite{}, optimal search~\cite{}, or restrictions on pursuer capabilities~\cite{}.
+
+Below, we provide an overview of several approaches to the N-pursuer visibility-based pursuit-evasion game. 
+
 \subsection{Sampling-based Approaches}
+
+Sampling-based motion planning methods have long been studied for their ability to find high-quality solutions to challenging configuration spaces in reasonable amounts of time~\cite{bibid}.
+Common sampling-based methods include the randomly-explkoring rapid tree algorithms~\cite{}, the fast marching tree algorithm~\cite{}, and the probabilistic road-map~(PRM) algorithm.
+Unfortunately, these algorithms tend to struggle in joint configuration spaces as a result of the curse of dimensionality, leading to several multi-robot variations~\cite{}.
+
+Due to the high dimensional nature of the joint configuration space, sampling-based approaches to the problem are fairly common.
+In one such method, Stifler and O'Kane propose a PRM-style planner that utilizes an internal model of the evolution of visible spaces as an additional validity check on expanding nodes during planning~\cite{}.
+In a follow up work, the algorithm preformance is improved through the use of domain-specific pose sampling, and a solution-refinement method~\cite{}.
+Several additional extensions to this method have been considered, including the improvement robustness to individual robot failures~\cite{} and the imposition of more stringent robot sensing models~\cite{}.
+
+
+
 
 \subsection{Graph-based Approaches}
 
@@ -234,6 +254,7 @@ Some recent works tackle similar problem formulations, but do not qualify for th
 
 \subsection{Learning-based Approaches}
 
+<<<<<<< Updated upstream
 Learning-based approaches to pursuit-evasion can be separated into two broad groups.
 The first considers pursuit as a chasing or interception problem, where the evader's state is available to the pursuers.
 For example, decentralized deep RL has been used to train multiple pursuers under local sensing and communication constraints~\cite{de2021decentralized}.
@@ -251,7 +272,7 @@ ViPER also uses an attentive critic, similar in motivation to MAAC~\cite{iqbal20
 Its main limitation is that it does not certify clearing in the same way as complete planners; success must be measured by the simulator or an external contamination tracker.
 
 
-\section{Algorithm Implementation}
+\section{Algorithm Implementation}\label{sec:algo}
 % What did you implement, and what were the results you obtained? What information is presented in the tables, figures, and diagrams you have included? This is the 'meat' of the report - when writing this section, step back and consider how best to convey your results to someone who is new to the topic.
 As we are interested in comparing recent developments in the field, we sampled and implemented 4 algorithms, one from each problem formulation.
 These are then compared on common metrics using a series of different maps.
@@ -284,6 +305,7 @@ Numerous sampling strategies are explored, but none seem to outperform uniform s
 With the details outlined, the full algorithm is depicted in Algorithm \ref{}.
 
 
+<<<<<<< Updated upstream
 \subsection{Visibility Roadmaps}
 In \cite{}, an extension to SG-PEG is proposed. 
 Several key innovations are detailed, including an improved visibility-based sampling distribution, a solution refinement method, and a process for iteratively increasing the number of pursuers until a solution can be provided.
@@ -337,9 +359,9 @@ Training uses Soft Actor-Critic~\cite{haarnoja2018soft} under CTDE: the actor re
 During evaluation, only the actor is used.
 In our implementation, ViPER is treated as an online planner: we construct the visibility graph, compute node features from the shared map, query the actor for each pursuer, execute the selected moves, and evaluate the resulting trajectory with the same shadow-tracking and tournament metrics used for the other methods.
 
-\section{Comparison Methodology}
+\section{Comparison Methodology}\label{sec:comp}
 
-\section{Open Problems}
+\section{Open Problems}\label{sec:open_prob}
 % Based upon your work, what are some (specific) open problems in the topic area? Are there any major obstacles to progress (e.g. insufficient compute, unsolved theoretical issues)? Can you suggest possible ways to move forward?
 
 \printbibliography
