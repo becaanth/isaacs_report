@@ -38,22 +38,22 @@
 
 \section{Introduction}
 % give a high level overview of your project - is it a technique, or the application of a specific algorithm, etc.? Who (worldwide) the major players in the area? Why is the topic interesting?
-Adversarial games in continuous spaces have long been studied under the field of differential game theory, developed by Rufus Isaac's in the 1960s~\cite{}.
+Adversarial games in continuous spaces have long been studied under the field of differential game theory, developed by Rufus Isaac's in the 1960s~\cite{diff_games}.
 These games, contrary to their discrete classical game theoretical counterpoints, have the evolution of the game evolve according to differential equations.
-Differential games have been used in several application spaces, such as perimeter defense, risk-averse landing path planning for airplanes, and ... \cite{}.
-In robotics, differential games find many applications in military ...
+Differential games have been used in several application spaces, such as perimeter defense, risk-averse landing path planning for airplanes, and search and rescue~\cite{pursuit}.
 
 Recently, more interest has been taken in multi-agent differential games. 
 These, of course, model more realistic scenarios and engagements. 
-However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of computing Hamilton-Jacobi-Isaacs solutions~\cite{}.
+However, they must often settle for sub-optimal solutions due to the curse of dimensionality and the difficulty of computing Hamilton-Jacobi-Isaacs solutions~\cite{multi_diff}.
+As a result, much work has been focussed on the development of heuristics, learning-based approaches, and approximate solutions.
 
 One such multi-agent game is the multi-pursuer vision-based pursuit evasion game.
 In this formulation, the evader, or evaders, are often treated as abstract entities that can move at arbitrary speeds. 
- This forces the pursuing team to plan for the worst-case scenario.
- As such, the problem devolves into a type of constrained frontier expansion problem on a known path.
- This makes the formulation of interest to motion planning researchers.
+This forces the pursuing team to plan for the worst-case scenario.
+As such, the problem devolves into a type of constrained frontier expansion problem on a known path.
+This makes the formulation of interest to motion planning researchers.
  
-Many solutions have been proposed for this problem, from learning-based methods, sampling-based approaches, and graph-search algorithms~\cite{}.
+Many solutions have been proposed for this problem, from learning-based methods~\cite{}, sampling-based approaches\cite{}, and graph-search algorithms~\cite{}.
 However, in the literature, practitioners tend to compare only against solutions they have readily available - ignoring suitable baselines from other problem formulations and only evaluating on limited subsets of the total problem space.
 As such, the state of the art is lacking in honest analysis and comparison of different approaches to multi-agent differential games.
 
@@ -84,18 +84,15 @@ where $u_p(t), u_e(t) \in \mathcal{U}$ are control inputs subject to bounded spe
 for some radius $\varepsilon > 0$.
 
 The pursuer seeks a control strategy $u_p(\cdot)$ that guarantees capture in finite time, while the evader seeks to maximize the capture time or avoid capture indefinitely. 
-Strategies may be open-loop or feedback, and optimal strategies are often characterized using tools from differential game theory, such as Hamilton-Jacobi-Isaacs (HJI) equations.
+Strategies may be open-loop or feedback, and optimal strategies are often characterized using tools from differential game theory, such as Hamilton-Jacobi-Isaacs (HJI) equations~\cite{diff_games}.
 In higher dimensional spaces, ore even with more complex kinematics, solutions to these equations are often intractable to compute.
-
-Pursuit-evasion problems are closely related to motion planning under uncertainty and adversarial conditions. 
-Sampling-based planners are often adapted to compute strategies or reachable sets in high-dimensional spaces, particularly when the evader's behavior is only partially known~\cite{}.
 
 \subsection{The N-Pursuer Visibility-Based Pursuit-Evasion Game}
 
 In the N-pursuer visibility-based pursuit-evasion problem, a team of $N$ pursuers cooperatively searches for an evader with an unknown position in a known environment $\mathcal{D} \subset \mathbb{R}^2$.
 We denote the configuration space of the environment, exclusive of obstacles, as $\mathcal{C} \subset \mathcal{D}$.
 One key distinction from the standard model of the pursuit-evasion game is that information is limited by line-of-sight visibility: the evader is detected only if it lies within the visible region of at least one pursuer.
-This visible region is defined by the joint configurations of the pursuer, the shape of $\mathcal{C}$, and the position of obstacles.
+This visible region is defined by the joint configurations of the pursuer, the shape of $\mathcal{C}$, and the position of obstacles~\cite{vis_pursuit}.
 
 Let the pursuers have states $\{x_i(t)\}_{i=1}^N \subset \mathcal{C}$. The environment induces a visibility map: for a pursuer at $x_i$, its visibility region is
 \[
@@ -123,7 +120,7 @@ Pursuer strategies must ensure that $\mathcal{\bar{S}}(t)$ shrinks monotonically
 This effectively collapses to a constrained form of the frontier expansion problem, where frontiers are dynamic and may rejoin each other.
 
 The visibility-based pursuit-evasion problem is significantly harder than classical pursuit-evasion due to partial information and the need for coordination. 
-Determining the minimum $N$ required for guaranteed detection is generally NP-hard~\cite{}. 
+Determining the minimum $N$ required for guaranteed detection is generally NP-hard~\cite{vis_pursuit}. 
 This leads to many discretizations, sampling-based methods and learning approaches to the problem.
 
 \subsection{Shadow Events}
@@ -131,7 +128,7 @@ Central to some algorithms in the literature is the concept of shadow events.
 This framework provides a conceptual analog of pursuer movement that neatly fits into the N-Pursuer Visibility-Based Pursuit-Evasion game.
 Briefly, shadow events describe a framework for propagating labels assigned to particular unseen regions in a space based on a hierarchy of dominance under common interactons.
 
-Introduced in \cite{}, shadow events are primarily used to keep track of contaminated areas in the game's space of interest.
+Introduced in \cite{guibas1999visibility}, shadow events are primarily used to keep track of contaminated areas in the game's space of interest.
 As such, the labels of concern are whether an area is clear or contaminated.
 Naturally, contaminated labels dominate cleared labels, as when a shadow we have cleared intersects with an unchecked shadow, the evading agent may move into the previously check space.
 
@@ -156,7 +153,7 @@ We may now state the relationship between the shadow events and labels as
 	\item Split - All shadows resulting from a split inherit the label of the original shadow.
 \end{itemize}
 
-Of course, algorithms may use this information in their planning loop, and several considered implementations do so~\cite{bibid}.
+Of course, algorithms may use this information in their planning loop, and several considered implementations do so~\cite{stiffler2014sampling}.
 The primary drawback of this approach is the extreme cost of computing the shadow label propagation. 
 in a 64mx64m environment at a resolution of 1m, discretization yields 4096 cells, each of which has to be check for line of sight from $N$ positions.
 Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
@@ -216,20 +213,16 @@ For spatial multi-agent problems, learned policies are often paired with graph n
 
 \section{Literature Review}\label{sec:lit_rev}
 % Provide a structured review of seminal and recent work in your topic area. You should attemp to provide a (brief) taxonomy of research results, organized in such a way that someone reading your report will be able ot understand some common research threads
-\subsection{Pursuit-Evasion Games}
-The pursuit-evasion game was originally introduced by Rufus Isaacs in his seminal work on differential game theory~\cite{bibid}.
+The pursuit-evasion game was originally introduced by Rufus Isaacs in his seminal work on differential game theory~\cite{diff_games}.
 Isaacs detailed a method for finding optimal solutions to differential games, relying on an equation, dubbed the Hamilton-Jacobi-Isaacs~(HJI) equation.
 The solution to this equation is tractable to calculate analytically in low-dimensional spaces.
-More recently, work has focused on extending solution methodologies for the pursuit-evasion game to high-dimensional spaces~\cite{bibid}, or scenarios with more agents~\cite{}.
-Follow up works focused on the development of provably complete methods~\cite{}, optimal search~\cite{}, or restrictions on pursuer capabilities~\cite{}.
-
 Below, we provide an overview of several approaches to the N-pursuer visibility-based pursuit-evasion game. 
 
 \subsection{Sampling-based Approaches}
 
-Sampling-based motion planning methods have long been studied for their ability to find high-quality solutions to challenging configuration spaces in reasonable amounts of time~\cite{bibid}.
-Common sampling-based methods include the randomly-exploring rapid tree algorithms~\cite{}, the fast marching tree algorithm~\cite{}, and the probabilistic road-map~(PRM) algorithm.
-Unfortunately, these algorithms tend to struggle in joint configuration spaces as a result of the curse of dimensionality, leading to several multi-robot variations~\cite{}.
+Sampling-based motion planning methods have long been studied for their ability to find high-quality solutions to challenging configuration spaces in reasonable amounts of time~\cite{FMT}.
+Common sampling-based methods include the randomly-exploring rapid tree algorithms~\cite{lavalle98rrt}, the fast marching tree algorithm~\cite{FMT}, and the probabilistic road-map~(PRM) algorithm~\cite{kavraki1996probabilistic}.
+Unfortunately, these algorithms tend to struggle in joint configuration spaces as a result of the curse of dimensionality, leading to several multi-robot variations~\cite{CLARK2005244}.
 
 Due to the high dimensional nature of the joint configuration space, sampling-based approaches to the problem are fairly common.
 In one such method, Stifler and O'Kane propose a PRM-style planner that utilizes an internal model of the evolution of visible spaces as an additional validity check on expanding nodes during planning~\cite{}.
