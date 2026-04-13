@@ -772,13 +772,11 @@ Overall, much work remains to be done on the topic of motion planning in multi-r
 The lack of easily comparable methods has led to difficult to recreate results, and likely hinders real progress on the problem.
 It would be beneficial for the field in general to standardize problem instances and open source implementations of these algorithms to help model and uncover hidden assumptions in their methodology.
 
-The learning-based and graph-based algorithms tend to do consistently well in covering a large percentage of the area, but often fail to capture the more finegrained details, while the sampling-based methods either consistently clear the environment fully or find no solution at all in a reasonable amount of time.
+The graph-based algorithm tends to do consistently well in covering a large percentage of the area, but often fails to capture the more fine-grained details, while the sampling-based methods either consistently clear the environment fully or find no solution at all in a reasonable amount of time.
 The investigation of hybrid methods that utilize the strengths of these paradigms to balance each other's weaknesses could improve the robustness of these methods.
 
 Although graph-based methods can guarantee completeness, and are deterministic, much work is yet to be done to increase the fidelity of the model these methods are applied to. Namely, sensors are assumed to be noiseless, robots have perfect centralized communication, environments are static, and dynamics are not considered. Furthermore, the tasks of convex decomposition in real environments is not so practical, as many transient objects (i.e. chairs, tables, equipment) exist that occlude views of the walls.
 
-Meanwhile, the sampling-based algorithms tend to occupy too much compute to solve the problem in a reasonable amount of time.
-The investigation of hybrid methods that utilize the strengths of these paradigms to balance each other's weaknesses could improve the robustness of these methods.
 The sampling-based approaches themselves seem convoluted and slow, largely due to the tracking of shadow labels.
 Improvements in the computational efficiency of these methods would lead to far improved outcomes for these algorithms.
 Future works may focus on both improving efficiency and providing better solution for refining paths to remove unnecessary movements.
