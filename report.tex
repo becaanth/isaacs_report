@@ -113,7 +113,7 @@ For a pursuer at $x_i$, its visibility region is
 \]
 We refer to the joint visibility region of all pursuers as $\mathcal{V}$. 
 In this variation of the pursuit evasion-game, the evader is often treated as an abstraction rather than a physical entity. 
-We assume the position of the pursuer $e(t) \in \mathcal{C}$ at time $t$ is a continuous function $e:[0,\infty) \to\mathcal{C}$ that describes the path of the evader moving at arbitrary speeds. 
+We assume the position of the evader $e(t) \in \mathcal{C}$ at time $t$ is a continuous function $e:[0,\infty) \to\mathcal{C}$ that describes the path of the evader moving at arbitrary speeds. 
 This allows the evader to inhabit any location in a connected subspace $\mathcal{S}\in \frac{ \mathcal{C}} { \mathcal{V}(x)}$, with the fraction denoting the exclusion of $\mathcal{V}(x)$ from $\mathcal{C}$. 
 We refer to $\mathcal{S}(t)$ as the shadow set at time $t$. 
 
@@ -149,7 +149,7 @@ Naturally, contaminated labels dominate cleared labels, as when a shadow we have
 Five main shadow events are introduced. These are
 \begin{itemize}
 	\item Appear - A shadow is instantiated when a previously seen part of the environment becomes hidden.
-	\item Disappear - Existing shadows vanish when they come into the visibile set of the pursuers $\mathcal{V}$.
+	\item Disappear - Existing shadows vanish when they come into the visible set of the pursuers $\mathcal{V}$.
 	\item Merge - Two or more existing shadows join together and adopt the same shadow label when a shadow appears linking them together, based on dominance.
 	\item Split - One shadow can be divided into multiple shadows when the pursuers visibility cones cause them to be non-path connected in 4-neighbour space.
 \end{itemize}
@@ -159,13 +159,13 @@ We may now state the relationship between the shadow events and labels as
 \begin{itemize}
 	\item Appear - A shadow appearing from previously visible areas $\mathcal{V}(t)$ is marked clear.
 	\item Disappear - All disappearing labels are discarded.
-	\item Merge - When shadows merge, the dominant label is assigned to all of the shadows. That is to say, if any of the merging shadows is contaminated,the resulting shadow is contaminated, and otherwise it is clear.
+	\item Merge - When shadows merge, the dominant label is assigned to all of the shadows. That is to say, if any of the merging shadows is contaminated, the resulting shadow is contaminated, and otherwise it is clear.
 	\item Split - All shadows resulting from a split inherit the label of the original shadow.
 \end{itemize}
 
 Of course, algorithms may use this information in their planning loop, and several considered implementations do so~\cite{stiffler2014sampling}.
 The primary drawback of this approach is the extreme cost of computing the shadow label propagation. 
-in a $64\times64 \text{ m}$ environment at a resolution of 1 m, discretization yields 4096 cells, each of which has to be checked for line of sight from $N$ positions.
+In a $64\times64 \text{ m}$ environment at a resolution of 1 m, discretization yields 4096 cells, each of which has to be checked for line of sight from $N$ positions.
 Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
 This leads to significant slow-downs in sampling on more complex and larger maps.
 Speed-ups can be made by decreasing the resolution, but this comes at the cost of potentially missing contaminations.
@@ -256,20 +256,20 @@ Sampling-based motion planning methods have long been studied for their ability 
 Common sampling-based methods include the randomly-exploring rapid tree algorithms~\cite{lavalle98rrt}, the fast marching tree algorithm~\cite{FMT}, and the probabilistic road-map~(PRM) algorithm~\cite{kavraki1996probabilistic}.
 Unfortunately, these algorithms tend to struggle in joint configuration spaces as a result of the curse of dimensionality, leading to several multi-robot variations~\cite{CLARK2005244}.
 
-Due to the complex nature of the problem space and visibilty model, sampling-based approaches to the this game are fairly common.
-Most works are in this space utilize a PRM-style planner.
-In one such method, Stifler and O'Kane propose on such planner that utilizes an internal model of the evolution of visible spaces as an additional validity check on expanding nodes during planning~\cite{stiffler2014sampling}.
+Due to the complex nature of the problem space and visibility model, sampling-based approaches to the this game are fairly common.
+Most works in this space utilize a PRM-style planner.
+In one such method, Stifler and O'Kane propose a planner that utilizes an internal model of the evolution of visible spaces as an additional validity check on expanding nodes during planning~\cite{stiffler2014sampling}.
 In a follow up work, the algorithm performance is improved through the use of domain-specific pose sampling, and a solution-refinement method~\cite{vis_roadmap}.
 Several additional extensions to this method have been considered, including the improvement of robustness to individual robot failures~\cite{stiffler2020planning}, the addition of probabilistic completeness guarantees~\cite{stiffler2024asymptotically}, and the consideration of more complex sensing models~\cite{stiffler2016pursuit}.
 
 
 \subsection{Graph-based Approaches}
 
-Guibas and Lavalle \cite{guibas1999visibility} formalized the pursuit-evasion problem in continuous polygonal environments with recontaminations. They develop a complete algorithm for the case of a single pursuer. First, the workspace is partititioned into convex regions, with binary labels indicating contamination, then a search is performed on the resulting quotient information space. By the definition of convexity, all points in a convex cell are mutually visible \cite{boyd2004convex}, therefore, the pursuer's progress is tracked by its transitions between these cells. The distance between centroids as well as the contamination state are used as an information-based heuristic for Dijkstra's algorithm. They show a logarithmic bound on the number of needed pursuers (i.e. the search number) for simply-connected free spaces, but leave multi-agent algorithms for future work. As part of this work, we implemented the Guibas algorithm for a single pursuer.
+Guibas and Lavalle \cite{guibas1999visibility} formalized the pursuit-evasion problem in continuous polygonal environments with recontaminations. They develop a complete algorithm for the case of a single pursuer. First, the workspace is partitioned into convex regions, with binary labels indicating contamination, then a search is performed on the resulting quotient information space. By the definition of convexity, all points in a convex cell are mutually visible \cite{boyd2004convex}, therefore, the pursuer's progress is tracked by its transitions between these cells. The distance between centroids as well as the contamination state are used as an information-based heuristic for Dijkstra's algorithm. They show a logarithmic bound on the number of needed pursuers (i.e. the search number) for simply-connected free spaces, but leave multi-agent algorithms for future work. As part of this work, we implemented the Guibas algorithm for a single pursuer.
 
 The most relevant paper for our tournament (respecting all game constraints) proposes Graph-Clear \cite{kolling2009pursuit}. A team of robots can execute \textit{sweep} actions to detect evaders in a vertex, and \textit{block} actions to prevent intruders from crossing an edge. A strategy consists of a sequence of block and sweep actions to detect all intruders despite possible recontamination. They show the computation of optimal strategies for this game is NP-hard for graphs; therefore the authors propose to create spanning trees, for which a Graph-Clear is a polynomial time algorithm. Intuitively, cycles in the graph are broken by agents executing a block action, reducing the problem to a tree search to be executed by the remaining agents.
 
-Some recent works tackle similar problem formulations, but do not qualify for the restrictions of this comparison. Namely, Zhou \cite{zhou2016cooperative} and Huang \cite{huang2011guaranteed} separately develop decentralized strategies for multiple pursuers in planar environments based on Voronoi decompositions; but evaders have finite speed. Bhattacharya et. al \cite{BHATTACHARYA20101745} analyze a cops and robber game in multidimensional grids, but cops are able to ``teleport'' across cells.
+Some recent works tackle similar problem formulations, but do not qualify for the restrictions of this comparison. Namely, Zhou \cite{zhou2016cooperative} and Huang \cite{huang2011guaranteed} separately develop decentralized strategies for multiple pursuers in planar environments based on Voronoi decompositions; but evaders have finite speed. Bhattacharya et al \cite{BHATTACHARYA20101745} analyze a cops and robber game in multidimensional grids, but cops are able to ``teleport'' across cells.
 
 \subsection{Learning-based Approaches}
 
