@@ -165,7 +165,7 @@ We may now state the relationship between the shadow events and labels as
 
 Of course, algorithms may use this information in their planning loop, and several considered implementations do so~\cite{stiffler2014sampling}.
 The primary drawback of this approach is the extreme cost of computing the shadow label propagation. 
-in a 64mx64m environment at a resolution of 1m, discretization yields 4096 cells, each of which has to be check for line of sight from $N$ positions.
+in a 64 m x 64 m environment at a resolution of 1 m, discretization yields 4096 cells, each of which has to be checked for line of sight from $N$ positions.
 Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
 This leads to significant slow-downs in sampling on more complex and larger maps.
 Speed-ups can be made by decreasing the resolution, but this comes at the cost of potentially missing contaminations.
@@ -184,7 +184,7 @@ As such we find it useful to utilize shadow labels as a metric in the evaluation
 
 \subsection{Probabilistic Road Maps}
 The Probabilistic Roadmap~(PRM) is a sampling-based motion planning algorithm designed for multi-query scenarios in high-dimensional configuration spaces~\cite{kavraki1996probabilistic}. 
-PRM constructs an undirected graph (roadmap) $G = (V, E)$ that approximates the connectivity of $\mathcal{C}$. 
+PRM constructs an undirected graph, or roadmap, $G = (V, E)$ that approximates the connectivity of $\mathcal{C}$. 
 The algorithm proceeds in two phases; a sampling phase and a query phase.
 
 During the initial sampling phase, a set of $n$ configurations $\{q_1, \dots, q_n\}$ is sampled uniformly from $\mathcal{C}$
@@ -197,10 +197,10 @@ For each neighbor $q_j$, a local planner attempts to connect $q_i$ and $q_j$ by 
 \[
 \epsilon_{ij}(t) = (1 - t) q_i + t q_j, \quad t.
 \]
-An edge $(q_i, q_j) \in E$ is added if $\epsilon_{ij}(t) \subset \mathcal{C}$.
+An edge $(q_i, q_j)$ is added to $E$ if the path $\epsilon_{ij}(t) \subset \mathcal{C}$.
 
-In the query phase, given start and goal configurations $q_{\mathrm{start}}, q_{\mathrm{goal}} \in \mathcal{C}$, are connected to nearby vertices in $G$ using the local planner. 
-A graph search algorithm is then used to find a path in $G$.
+In the query phase, given start and goal configurations $q_{\mathrm{start}}, q_{\mathrm{goal}} \in \mathcal{C}$ are connected to nearby vertices in $G$ using the local planner. 
+A graph search algorithm is then used to find a path in $G$ from the start to the goal.
 
 PRM is probabilistically complete: if a path exists in $\mathcal{C}$, the probability that PRM finds a solution approaches $1$ as $n \to \infty$.
 Under appropriate connection strategies, PRM variants can achieve asymptotic optimality, and have been applied to numerous multi-robot problems~\cite{CLARK2005244}.
