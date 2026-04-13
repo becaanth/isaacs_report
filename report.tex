@@ -503,7 +503,8 @@ The shared policy $\pi_\theta(a_i(t)\mid o_i(t))$ then chooses a neighboring vie
 The map is divided into occupied cells $\mathcal{M}_o$, free cells $\mathcal{M}_f$, and cleared cells $\mathcal{M}_c$; uncovered frontiers between $\mathcal{M}_c$ and $\mathcal{M}_f\setminus\mathcal{M}_c$ are the locations through which a worst-case evader can recontaminate cleared space.
 ViPER optimizes synchronized team motion, where the cost of a step is the longest distance traveled by any pursuer before the next decision.
 Its shared reward is
-\[
+\begin{equation}
+\label{eq:shared-reward}
 \begin{aligned}
 r_t =
 c_1\left(|\mathcal{M}_{c,t+1}|-|\mathcal{M}_{c,t}|\right)
@@ -511,7 +512,8 @@ c_1\left(|\mathcal{M}_{c,t+1}|-|\mathcal{M}_{c,t}|\right)
 {}+
 \mathbf{1}_{\mathcal{M}_c=\mathcal{M}_f^*}r_f .
 \end{aligned}
-\]
+\end{equation}
+
 The first term rewards net clearing, the second penalizes team travel, and the final term rewards full task completion.
 
 The network uses graph attention to encode the current viewpoint graph and a decoder that scores only feasible neighboring nodes.
@@ -788,14 +790,7 @@ This is consistent with the credit-assignment difficulty inherent in cooperative
 Improving team-size generalization, and extending to varying sensor range and map scales beyond those seen during training, are therefore concrete and practically motivated open problems for this class of methods.
 
 A further open problem lies in the design of the reward function itself.
-The shared reward
-\[
-\begin{aligned}
-r_t =\;& c_1\!\left(|\mathcal{M}_{c,t+1}|-|\mathcal{M}_{c,t}|\right)
-       - c_2\max_i\|\psi_i(t+1)-\psi_i(t)\| \\
-      &+ \mathbf{1}_{\mathcal{M}_c=\mathcal{M}_f^*}r_f
-\end{aligned}
-\]
+The shared reward in \eqref{eq:shared-reward}
 couples two competing objectives through the hand-tuned scalar weights $c_1$ and $c_2$: clearing area as fast as possible, and minimizing the longest single-step displacement of any agent.
 The travel-penalty term uses a max-over-agents formulation, which penalizes the slowest agent disproportionately and may discourage the kind of coordinated splitting behavior that is precisely what makes multi-agent clearing more efficient than a single pursuer.
 This is observable in the data: on \texttt{convex\_obstacles}, ViPER's mean path length of $99.1$\,m is roughly $2.7\times$ shorter than SG-PEG's $267.9$\,m, suggesting the penalty is effective on maps with many small occluded pockets where short detours yield large coverage gains.
