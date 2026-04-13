@@ -792,9 +792,9 @@ The shared reward in \eqref{eq:shared-reward}
 couples two competing objectives through the hand-tuned scalar weights $c_1$ and $c_2$: clearing area as fast as possible, and minimizing the longest single-step displacement of any agent.
 The travel-penalty term uses a max-over-agents formulation, which penalizes the slowest agent disproportionately and may discourage the kind of coordinated splitting behavior that is precisely what makes multi-agent clearing more efficient than a single pursuer.
 This is observable in the data: on \texttt{convex\_obstacles}, ViPER's mean path length of $99.1$\,m is roughly $2.7\times$ shorter than SG-PEG's $267.9$\,m, suggesting the penalty is effective on maps with many small occluded pockets where short detours yield large coverage gains.
-On \texttt{H\_map}, however, path lengths grow to $201.1$\,m for ViPER, which is comparable to Graph-Clear ($393.9$\,m) --- both methods are forced into the same backtracking pattern imposed by the corridor geometry, and neither reward structure can avoid it.
-This suggests that the clearing term $c_1(\cdot)$ lacks a spatial component: it does not distinguish between clearing cells that are topologically isolated --- such as the ends of the H's arms --- and cells that border open, easily recontaminated frontiers.
-Replacing the scalar net-clearing bonus with a potential-based term derived from the shadow-event formalism of Section~\ref{subsec:shadow_events} --- rewarding specifically the reduction of contaminated shadow area $|\mathcal{\bar{S}}(t)|$ rather than the growth of $|\mathcal{M}_c|$ --- would align the reward more directly with the game objective and could remove the need for the ad hoc completion bonus $r_f$ entirely.
+On \texttt{H\_map}, however, path lengths grow to $201.1$\,m for ViPER, which is comparable to Graph-Clear ($393.9$\,m) - both methods are forced into the same backtracking pattern imposed by the corridor geometry, and neither reward structure can avoid it.
+This suggests that the clearing term $c_1(\cdot)$ lacks a spatial component: it does not distinguish between clearing cells that are topologically isolated - such as the ends of the H's arms - and cells that border open, easily recontaminated frontiers.
+Replacing the scalar net-clearing bonus with a potential-based term derived from the shadow-event formalism of Section~\ref{subsec:shadow_events} - rewarding specifically the reduction of contaminated shadow area $|\mathcal{\bar{S}}(t)|$ rather than the growth of $|\mathcal{M}_c|$ - would align the reward more directly with the game objective and could remove the need for the ad hoc completion bonus $r_f$ entirely.
 
 Overall, although interesting, this problem spaces is not particularly developed.
 Numerous improvements in both procedure and approaches are possible, that would improve the quality of solutions and the applicability of differential games to real-world problems.
@@ -810,7 +810,7 @@ Additionally, we implement several environment of varying difficulty on which we
 We ensure sterile conditions by fixing starting configurations and random number generation seeding, before evaluating the methods for $30$ instances of each map with a fixed number of pursuers.
 Further, the sensitivity of each algorithm to varying number of pursuers is evaluated.
 
-We utilize the collected metrics to make judgements about the best-performing algorithms under a variety of conditions.
+We utilize the collected metrics to make judgments about the best-performing algorithms under a variety of conditions.
 We make recommendations and identify weaknesses in the literature, providing a suitable starting point for future research on the problem.
 
 
