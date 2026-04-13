@@ -538,13 +538,13 @@ Agents are shown as open circles connected by a red line indicating their curren
 
 \section{Comparison Methodology}\label{sec:comp}
 
-We evaluate the methods described in Section~\ref{sec:algo} using a unified set of metrics: planning time, execution time, total path length, maximum environment coverage, and success rate. P
-ath length is computed as the cumulative distance traveled by all pursuers and is measured online during execution.
+We evaluate the methods described in Section~\ref{sec:algo} using a unified set of metrics: planning time, execution time, total path length, maximum environment coverage, and success rate. 
+Path length is computed as the cumulative distance traveled by all pursuers and is measured online during execution.
 Experiments are conducted on four maps with varying structural complexity: \texttt{simple\_obs}, \texttt{ring}, \texttt{H\_map}, and \texttt{convex\_obstacles}. 
 These environments range in size from $40\times40$\,m to $64\times64$\,m and contain both convex and non-convex obstacles. 
-The \texttt{simple\_obs} map includes several polygonal obstacles and a large circular obstacle, which complicates decomposition into convex regions for methods which incroperate this into planning, visualized in Figure \ref{fig:map1}. 
+The \texttt{simple\_obs} map includes two polygonal obstacles and a large circular obstacle, which complicates decomposition into convex regions for methods which incroperate this into planning, visualized in Figure \ref{fig:map1}. 
 The \texttt{ring} map consists of two enclosing walls with narrow gaps, requiring coordinated clearing to avoid recontamination, visualized in Figure \ref{fig:map2}. 
-The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared edliberatly before advancing, visualized in Figure \ref{fig:map3}. 
+The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared deliberately before advancing, visualized in Figure \ref{fig:map3}. 
 Finally, \texttt{convex\_obstacles} features multiple convex obstacles and presents the greatest challenge for recontamiation, visualized in Figure \ref{fig:map4}.
 
 \begin{figure}[t]
