@@ -165,7 +165,7 @@ We may now state the relationship between the shadow events and labels as
 
 Of course, algorithms may use this information in their planning loop, and several considered implementations do so~\cite{stiffler2014sampling}.
 The primary drawback of this approach is the extreme cost of computing the shadow label propagation. 
-in a 64 m x 64 m environment at a resolution of 1 m, discretization yields 4096 cells, each of which has to be checked for line of sight from $N$ positions.
+in a $64\times64 \text{ m}$ environment at a resolution of 1 m, discretization yields 4096 cells, each of which has to be checked for line of sight from $N$ positions.
 Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
 This leads to significant slow-downs in sampling on more complex and larger maps.
 Speed-ups can be made by decreasing the resolution, but this comes at the cost of potentially missing contaminations.
