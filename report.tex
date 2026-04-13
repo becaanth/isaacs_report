@@ -775,12 +775,36 @@ The investigation of hybrid methods that utilize the strengths of these paradigm
 
 Although graph-based methods can guarantee completeness, and are deterministic, much work is yet to be done to increase the fidelity of the model these methods are applied to. Namely, sensors are assumed to be noiseless, robots have perfect centralized communication, environments are static, and dynamics are not considered. Furthermore, the tasks of convex decomposition in real environments is not so practical, as many transient objects (i.e. chairs, tables, equipment) exist that occlude views of the walls.
 
+Meanwhile, the sampling-based algorithms tend to occupy too much compute to solve the problem in a reasonable amount of time.
+The investigation of hybrid methods that utilize the strengths of these paradigms to balance each other's weaknesses could improve the robustness of these methods.
 The sampling-based approaches themselves seem convoluted and slow, largely due to the tracking of shadow labels.
 Improvements in the computational efficiency of these methods would lead to far improved outcomes for these algorithms.
 Future works may focus on both improving efficiency and providing better solution for refining paths to remove unnecessary movements.
 
-Overall, although interesting, this problem spaces is not well developed at this time.
-Numerous improvements in both procedure and approaches are possible that would improve the quality of solutions and the applicability of differential games to real-world problems.
+Learning-based methods, while empirically competitive, introduce their own class of open problems.
+ViPER's graph-attention policy, trained under CTDE with Soft Actor-Critic~\cite{haarnoja2018soft}, generalizes well across the four tested environments at $k=4$: it achieves 100\% success on all maps and maintains planning times of $2$--$7$\,s regardless of map topology, compared to the $140$--$172$\,s planning times seen for the sampling-based planners on \texttt{H\_map}.
+However, this robustness breaks down at small team sizes --- at $k=2$ on \texttt{simple\_obs}, ViPER's mean path length rises to $1025 \pm 1617$\,m, more than thirteen times its value at $k=4$, while SG-PEG and Graph-Clear remain stable at $76$\,m and $87$\,m respectively under the same conditions.
+This is consistent with the credit-assignment difficulty inherent in cooperative MARL~\cite{busoniu2008comprehensive}: with only two agents, each pursuer must simultaneously clear and guard against recontamination through the frontiers between $\mathcal{M}_c$ and $\mathcal{M}_f\setminus\mathcal{M}_c$, and the shared reward signal provides insufficient gradient to differentiate these roles.
+Improving team-size generalization, and extending to varying sensor range and map scales beyond those seen during training, are therefore concrete and practically motivated open problems for this class of methods.
+
+A further open problem lies in the design of the reward function itself.
+The shared reward
+\[
+\begin{aligned}
+r_t =\;& c_1\!\left(|\mathcal{M}_{c,t+1}|-|\mathcal{M}_{c,t}|\right)
+       - c_2\max_i\|\psi_i(t+1)-\psi_i(t)\| \\
+      &+ \mathbf{1}_{\mathcal{M}_c=\mathcal{M}_f^*}r_f
+\end{aligned}
+\]
+couples two competing objectives through the hand-tuned scalar weights $c_1$ and $c_2$: clearing area as fast as possible, and minimizing the longest single-step displacement of any agent.
+The travel-penalty term uses a max-over-agents formulation, which penalizes the slowest agent disproportionately and may discourage the kind of coordinated splitting behavior that is precisely what makes multi-agent clearing more efficient than a single pursuer.
+This is observable in the data: on \texttt{convex\_obstacles}, ViPER's mean path length of $99.1$\,m is roughly $2.7\times$ shorter than SG-PEG's $267.9$\,m, suggesting the penalty is effective on maps with many small occluded pockets where short detours yield large coverage gains.
+On \texttt{H\_map}, however, path lengths grow to $201.1$\,m for ViPER, which is comparable to Graph-Clear ($393.9$\,m) --- both methods are forced into the same backtracking pattern imposed by the corridor geometry, and neither reward structure can avoid it.
+This suggests that the clearing term $c_1(\cdot)$ lacks a spatial component: it does not distinguish between clearing cells that are topologically isolated --- such as the ends of the H's arms --- and cells that border open, easily recontaminated frontiers.
+Replacing the scalar net-clearing bonus with a potential-based term derived from the shadow-event formalism of Section~\ref{subsec:shadow_events} --- rewarding specifically the reduction of contaminated shadow area $|\mathcal{\bar{S}}(t)|$ rather than the growth of $|\mathcal{M}_c|$ --- would align the reward more directly with the game objective and could remove the need for the ad hoc completion bonus $r_f$ entirely.
+
+Overall, although interesting, this problem spaces is not particularly developed.
+Numerous improvements in both procedure and approaches are possible, that would improve the quality of solutions and the applicability of differential games to real-world problems.
 
 \section{Conclusion}
 
