@@ -54,7 +54,7 @@ In this formulation, the evaders are often treated as abstract entities that can
 This forces the pursuing team to plan for the worst-case scenario.
 As such, the problem devolves into a type of constrained frontier expansion problem on a known environment.
 This makes the formulation of interest to motion planning researchers.
-A depiction of such a game, along with a valid solution for clearing the map, is depicted in Figure \ref{fig:valid}.
+A depiction of such a game, along with a valid solution for clearing the map, is depicted in Fig. \ref{fig:valid}.
 
 \begin{figure}
 	\centering
@@ -169,7 +169,7 @@ in a 64 m x 64 m environment at a resolution of 1 m, discretization yields 4096 
 Every resulting shadow position then must be checked for neighbours, resulting in a breadth first search through the graph for all connected shadows.
 This leads to significant slow-downs in sampling on more complex and larger maps.
 Speed-ups can be made by decreasing the resolution, but this comes at the cost of potentially missing contaminations.
-We provide a visualization of these shadows in the midst of a plan being executed in Figure \ref{fig:shadow}.
+We provide a visualization of these shadows in the midst of a plan being executed in Fig. \ref{fig:shadow}.
 
 \begin{figure}
 	\centering
@@ -210,10 +210,10 @@ Under appropriate connection strategies, PRM variants can achieve asymptotic opt
 \subsection{Graph-Based Motion Planning}\label{sec:GBMP}
 
 
-\begin{figure}[ht] % Added [ht] to help with placement
+\begin{figure}[t] % Added [ht] to help with placement
     \centering
     \includegraphics[trim={0cm 5cm 0cm 0cm}, clip, width=\columnwidth, page=2]{figs/graph-based-figs.pdf}
-    \caption{Graph construcion from simple map: (1) polygonal environment, (2) convex decomposition, (3) topological representation.}
+    \caption{Graph construction from simple map: (1) polygonal environment, (2) convex decomposition, (3) topological representation.}
     \label{fig:convex}
 \end{figure}
 
@@ -298,7 +298,7 @@ Below, we detail every algorithm selected for comparison.
 
 \subsection{Sample-Generated Pursuit-Evasion Graphs} \label{subsec:peg}
 Sample-generated pursuit-evasion graphs~(SG-PEG) utilize PRM-style sampling in a joint configuration space to find solutions to the visibility-base pursuit-evasion game.
-While based on PRM algorihtms, no proofs of probabilistic completeness are provided for SG-PEG~\cite{stiffler2014sampling}.
+While based on PRM algorithms, no proofs of probabilistic completeness are provided for SG-PEG~\cite{stiffler2014sampling}.
 
 We begin with a description of the graph data structure utilized in SG-PEG.
 The graph utilized is a rooted di-graph with vertices representing joint robot configurations $p_{0:N}$, as well as the set of non-dominated shadows reachable by traversing the graph to the vertex in question.
@@ -313,7 +313,7 @@ Upon adding a new edge, the algorithm recursively searches through the neighbour
 This acts as bookkeeping for finding a solution.
 If the reachable labels are all clear for a given vertex, the vertex must denote a full clearing of the environment.
 Upon this condition being met, we may then reconstruct a solution from the intermediate waypoints between the root and the cleared node, as in any sampling-based motion planning method. 
-A visualization of the sampling process after a number of iterations can be seen in Figure \ref{fig:sbpeg}.
+A visualization of the sampling process after a number of iterations can be seen in Fig. \ref{fig:sbpeg}.
 
 \begin{figure}
 	\centering
@@ -382,7 +382,7 @@ A point is then sampled uniformly from the intersection of the individual visibi
 The so-called web is the union of the initial and intersection points $\mathcal{W} = \mathcal{P}\cup \mathcal{Q}$.
 A separate web is sampled for each pursuer, and if a web is ever exhausted, a new set of webs is generated to continue.
 The pursuit-evasion graph is constructed by sampling points from these webs without replacement. 
-A visualization of a sampled and connected graph can be seen in Figure \ref{fig:vrsb}.
+A visualization of a sampled and connected graph can be seen in Fig. \ref{fig:vrsb}.
 
 \begin{figure}
 	\centering
@@ -449,7 +449,7 @@ The state space of a surveillance graph $G$ is defined to be the set
 \[
 \mathit{V}(G) = \left\{ \mathit{R}, \mathit{C} \right\}^n \times \left\{ \mathit{R}, \mathit{C}, \mathit{B} \right\}^m
 \]
-where $\mathit{R}$ represents \texttt{clear}, $\mathit{C}$ represents \texttt{contaminated}, and $\mathit{B}$ represents \texttt{blocked}, $n$ is the number of vertices, and $m$ the number of edges. A \textit{recontamination path} is defined in the topological space, denoting a path of edges and certices on which no edge is blocked.  
+where $\mathit{R}$ represents \texttt{clear}, $\mathit{C}$ represents \texttt{contaminated}, and $\mathit{B}$ represents \texttt{blocked}, $n$ is the number of vertices, and $m$ the number of edges. A \textit{recontamination path} is defined in the topological space, denoting a path of edges and vertices on which no edge is blocked.  
 
 \begin{figure}[t]
 	\centering
@@ -457,12 +457,13 @@ where $\mathit{R}$ represents \texttt{clear}, $\mathit{C}$ represents \texttt{co
 	\caption{Graph-clear on the \texttt{convex\_obstacles} map. Note the convex cell decomposition of the configuration space.}
 	\label{fig:convex}
 \end{figure}
-The two actions that can be taken by agents are \textit{sweeping} and \textit{blocking}. Sweeping actions enter a convex cell, and mark the associated vertex clear in the surveillance graph. Blocking actions entail agents waiting on the boundary of two cells, breaking cycles in the topology such that a subgraph is a spanning tree for other agents to decontaminate. Agents work together to coordinate
+The two actions that can be taken by agents are \textit{sweeping} and \textit{blocking}. Sweeping actions enter a convex cell, and mark the associated vertex clear in the surveillance graph. Blocking actions entail agents waiting on the boundary of two cells, breaking cycles in the topology such that a subgraph is a spanning tree for other agents to decontaminate. Agents work together to coordinate actions to partition trees, and explore them --- termed a \textit{strategy}.
 
 The algorithm processes the surveillance tree bottom-up, associating an optimal \textit{full-cut sequence} $\bar{S}_{v_x}(e)$ with each directed edge $e = [v_x, v_y]$, representing the cheapest contiguous progressive clearing order for the subtree rooted at $v_y$ once $v_x$ is already clear.
-The algorithm is shown below:
+The algorithm is shown below (\ref{alg:gc}):
 \begin{algorithm}
 \caption{Graph-Clear: Optimal Contiguous Strategy on a Tree}
+\label{alg:gc}
 \begin{algorithmic}[1]
 \Procedure{GraphClear}{$T = (V, E, w)$}
     \State Initialize $\bar{S}_{v}(e) \gets \emptyset$ for every directed edge $e$
@@ -524,7 +525,7 @@ In our implementation, ViPER is treated as an online planner: we construct the v
 A key node feature is the \emph{safe\_utility}: the number of safe-zone frontier cells visible from a given node within a fixed sensing range, accounting for line-of-sight.
 Nodes deep inside the already-cleared region have low safe\_utility (few reachable frontiers), while nodes at the perimeter of the cleared zone, where new area can be uncovered, have high safe\_utility.
 Because frontiers shift as agents advance, safe\_utility is recomputed at every decision step; the policy is trained to steer agents toward high-utility nodes to maximise clearance rate.
-Figure~\ref{fig:viper} shows a snapshot of the viewpoint graph during execution: node color encodes safe\_utility, ranging from dark purple (low) through teal to yellow (high).
+Fig.~\ref{fig:viper} shows a snapshot of the viewpoint graph during execution: node color encodes safe\_utility, ranging from dark purple (low) through teal to yellow (high).
 Agents are shown as open circles connected by a red line indicating their current heading direction, and the pink shaded regions are areas that have been recontaminated and must be re-cleared.
 
 \begin{figure}
@@ -544,10 +545,10 @@ We evaluate the methods described in Section~\ref{sec:algo} using a unified set 
 Path length is computed as the cumulative distance traveled by all pursuers and is measured online during execution.
 Experiments are conducted on four maps with varying structural complexity: \texttt{simple\_obs}, \texttt{ring}, \texttt{H\_map}, and \texttt{convex\_obstacles}. 
 These environments range in size from $40\times40$\,m to $64\times64$\,m and contain both convex and non-convex obstacles. 
-The \texttt{simple\_obs} map includes two polygonal obstacles and a large circular obstacle, which complicates decomposition into convex regions for methods which incroperate this into planning, visualized in Figure \ref{fig:map1}. 
-The \texttt{ring} map consists of two enclosing walls with narrow gaps, requiring coordinated clearing to avoid recontamination, visualized in Figure \ref{fig:map2}. 
-The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared deliberately before advancing, visualized in Figure \ref{fig:map3}. 
-Finally, \texttt{convex\_obstacles} features multiple convex obstacles and presents the greatest challenge for recontamination, visualized in Figure \ref{fig:map4}.
+The \texttt{simple\_obs} map includes two polygonal obstacles and a large circular obstacle, which complicates methods that perform convex decompositions of the map, visualized in Fig. \ref{fig:map1}. 
+The \texttt{ring} map consists of two enclosing walls with narrow gaps, requiring coordinated clearing to avoid recontamination, visualized in Fig. \ref{fig:map2}. 
+The \texttt{H\_map} contains an H-shaped structure with enclosed pockets that must be cleared deliberately before advancing, visualized in Fig. \ref{fig:map3}. 
+Finally, \texttt{convex\_obstacles} features multiple convex obstacles and presents the greatest challenge for recontamination, visualized in Fig. \ref{fig:map4}.
 
 \begin{figure}[t]
 	\centering
